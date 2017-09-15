@@ -1,0 +1,28 @@
+{
+  "name": "toolset/toolset-cli",
+  "type": "wp-cli-package",
+  "description": "WP-CLI commands for Toolset plugins",
+  "keywords": [
+    "wp-cli",
+    "toolset",
+    "wordpress"
+  ],
+  "homepage": "https://git.onthegosystems.com/toolset/toolset-cli/",
+  "authors": [
+    {
+      "name": "OnTheGoSystems",
+      "email": "hello@onthegosystems.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.3"
+  },
+  "autoload": {
+    "classmap": [
+      "application/"
+    ],
+    "files": [
+      "lib/helper.php"
+    ]
+  }
+}
