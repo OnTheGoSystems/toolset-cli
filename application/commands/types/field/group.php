@@ -164,24 +164,29 @@ class Group extends Types_Command {
 	 * [--count=<number>]
 	 * : How many items to generate. Default: 10
 	 *
+	 * [--domain=<domain>]
+	 * : The domain of the group.
+	 * Can take values: posts, terms, users. Default: posts.
+	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp item generate --count=100
+	 *    wp item generate --count=100 --domain=terms
 	 *
 	 * @subcommand generate
-	 * @synopsis [--count=<number>]
+	 * @synopsis [--count=<number>] [--domain=<domain>]
 	 *
 	 * @since 1.0
 	 */
 	public function generate( $args, $assoc_args ) {
 		$defaults = array(
 			'count' => 10,
+			'domain' => 'posts',
 		);
 		$list_args = wp_parse_args( $assoc_args, $defaults );
 
 		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating items', 'toolset-cli' ), $list_args['count'] );
 		for ( $i = 0; $i < $list_args['count']; $i ++ ) {
-			$this->create_item();
+			$this->create_item( $list_args['domain'] );
 			$progress->tick();
 		}
 		$progress->finish();
