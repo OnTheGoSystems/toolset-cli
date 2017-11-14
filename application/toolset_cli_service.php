@@ -17,6 +17,7 @@ class Toolset_CLI_Service {
 		'types' => array(
 			'types' => '\Toolset_CLI\Types\Types',
 			'field group' => '\Toolset_CLI\Types\Field\Group',
+			'm2m relationships' => '\Toolset_CLI\Types\M2M\Relationships',
 		),
 	);
 
