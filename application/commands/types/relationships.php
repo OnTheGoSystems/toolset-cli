@@ -1,13 +1,13 @@
 <?php
 
-namespace Toolset_CLI\Types\M2M;
+namespace Toolset_CLI\Types;
 
 use Toolset_CLI\Types\Types_Command;
 
 /**
- * M2M relationships commands.
+ * Relationships commands.
  *
- * @package Toolset_CLI\Types\M2M
+ * @package Toolset_CLI\Types
  */
 class Relationships extends Types_Command {
 
@@ -20,10 +20,12 @@ class Relationships extends Types_Command {
 		if ( !defined('TOOLSET_EDIT_LAST' )){
 			define( 'TOOLSET_EDIT_LAST', '_toolset_edit_last');
 		}
+		do_action( 'toolset_do_m2m_full_init' );
 	}
 
+
 	/**
-	 * Generates a relationship between two CPT, if they doesn't exist they will be created.
+	 * Creates a relationship between two CPT, if they doesn't exist they will be created.
 	 *
 	 * ## OPTIONS
 	 *
@@ -51,56 +53,43 @@ class Relationships extends Types_Command {
 	 * : Relationship type: Many to many, one to many or one to one. Default: *..*
 	 * Can take values: *..*, <number>..*, <number>..<number>,  .
 	 *
-	 * [--parent-items=<number>]
-	 * : Number of parent items created for testing. Default: 0
-	 * It depends on the cardinality:
-	 *    - if value is 10 and cardinality is 1..*, it will create 10 items and will relate them to some new N `--child-items` items
-	 *    - if value is 10 and cardinality is *..*, it will create 10 items and will related them with some of the existing N `--child-items` items
-	 *
-	 * [--child-items=<number>]
-	 * : Number of child items created for testing. Default: 0
-	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp types m2m relationships generate --parent=posts --child=media --definition=featured-video
-	 *    wp types m2m relationships generate --parent=book,Books,Book --child=book-author,Authors,Author --definition=authorship,Authorships,Authorship
-	 *    wp types m2m relationships generate --parent=book,Books,Book --child=book-author,Authors,Author --definition=authorship,Authorships,Authorship --cardinality=*..* --parent-items=10000 --child-items=10000
+	 *    wp types relationships create --parent=posts --child=media --definition=featured-video
+	 *    wp types relationships create --parent=book,Books,Book --child=book-author,Authors,Author --definition=authorship,Authorships,Authorship
+	 *    wp types relationships create --parent=book,Books,Book --child=book-author,Authors,Author --definition=authorship,Authorships,Authorship --cardinality=*..*
 	 *
-	 * @subcommand generate
-	 * @synopsis [--parent=<string>] [--child=<string>] [--definition=<string>] [--cardinality=<string>] [--parent-items=<string>] [--child-items=<string>]
+	 * @subcommand create
+	 * @synopsis [--parent=<string>] [--child=<string>] [--definition=<string>] [--cardinality=<string>]
 	 *
 	 * @since 1.0
 	 */
-	public function generate( $args, $assoc_args ) {
+	public function create( $args, $assoc_args ) {
 		if ( ! apply_filters( 'toolset_is_m2m_enabled', false ) ) {
 			\WP_CLI::error( 'Toolset m2m is not activated' );
 		}
 		if ( ! defined( 'TOOLSET_VERSION' ) || version_compare(TOOLSET_VERSION,  "2.5.3") < 0 ) {
 			\WP_CLI::error( 'Please, update your Toolset Common version' );
 		}
-		do_action( 'toolset_do_m2m_full_init' );
 
 		$defaults = array(
 			'cardinality' => '*..*',
-			'parent-items' => 0,
-			'child-items' => 0,
 		);
 		$relationship_args = wp_parse_args( $assoc_args, $defaults );
 
 		if ( ! isset( $relationship_args['parent'] ) ) {
-			\WP_CLI::runcommand( 'help types m2m relationships generate' );
+			\WP_CLI::runcommand( 'help types relationships generate' );
 			\WP_CLI::error( 'Parent post type is required' );
 		}
 		if ( ! isset( $relationship_args['child'] ) ) {
 			\WP_CLI::error( 'Child post type is required' );
-			\WP_CLI::runcommand( 'help types m2m relationships generate' );
+			\WP_CLI::runcommand( 'help types relationships generate' );
 		}
 		if ( ! isset( $relationship_args['definition'] ) ) {
 			\WP_CLI::error( 'Relationship definition is required' );
-			\WP_CLI::runcommand( 'help types m2m relationships generate' );
+			\WP_CLI::runcommand( 'help types relationships generate' );
 		}
 
-		// Parent type.
 		// <slug>,<plural>,<singular>.
 		$parent_post_type = explode( ',', $relationship_args['parent'] );
 		$parent_post_type_object = $this->create_post_type( $parent_post_type[0], toolset_getarr( $parent_post_type, 1, null), toolset_getarr( $parent_post_type, 2, null) );
@@ -116,6 +105,65 @@ class Relationships extends Types_Command {
 		);
 
 		$definition = $this->create_relationship( $definition_data[0], $parent_post_type_object, $child_post_type_object, $definition_extra );
+		\WP_CLI::success( 'Command executed correctly' );
+	}
+
+
+	/**
+	 * Generates a relationship between two CPT, if they doesn't exist they will be created.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--definition=<relationship>]
+	 * : The relationship slug. Required.
+	 * Can take values: <string>.
+	 *
+	 * [--parent-items=<number>]
+	 * : Number of parent items created for testing. If it is not set and `--child-items` is, it will take the existing posts.
+	 * It depends on the cardinality:
+	 *    - if value is 10 and cardinality is 1..*, it will create 10 items and will relate them to some new N `--child-items` items
+	 *    - if value is 10 and cardinality is *..*, it will create 10 items and will related them with some of the existing N `--child-items` items
+	 *
+	 * [--child-items=<number>]
+	 * : Number of child items created for testing. Default: 0
+	 *
+	 * ## EXAMPLES
+	 *
+	 *    wp types relationships generate --definition=authorship --parent-items=10000 --child-items=10000
+	 *    wp types relationships generate --definition=authorship --child-items=10000
+	 *
+	 * @subcommand generate
+	 * @synopsis [--parent=<string>] [--child=<string>] [--definition=<string>] [--cardinality=<string>] [--parent-items=<string>] [--child-items=<string>]
+	 *
+	 * @since 1.0
+	 */
+	public function generate( $args, $assoc_args ) {
+		if ( ! apply_filters( 'toolset_is_m2m_enabled', false ) ) {
+			\WP_CLI::error( 'Toolset m2m is not activated' );
+		}
+		if ( ! defined( 'TOOLSET_VERSION' ) || version_compare(TOOLSET_VERSION,  "2.5.3") < 0 ) {
+			\WP_CLI::error( 'Please, update your Toolset Common version' );
+		}
+
+		$defaults = array(
+			'parent-items' => 0,
+			'child-items' => 0,
+		);
+		$relationship_args = wp_parse_args( $assoc_args, $defaults );
+
+		if ( ! isset( $relationship_args['definition'] ) ) {
+			\WP_CLI::error( 'Relationship definition is required' );
+			\WP_CLI::runcommand( 'help types m2m relationships generate' );
+		}
+
+		$definition_repository = \Toolset_Relationship_Definition_Repository::get_instance();
+		$definition = $definition_repository->get_definition( $relationship_args['definition'] );
+		if ( ! isset( $relationship_args['definition'] ) ) {
+			\WP_CLI::error( 'Relationship definition doesn\'t exist, please create it.' );
+		}
+		$post_type_repository = \Toolset_Post_Type_Repository::get_instance();
+		$parent_post_type_object = $post_type_repository->get( $definition->get_parent_type()->get_types()[0] );
+		$child_post_type_object = $post_type_repository->get( $definition->get_child_type()->get_types()[0] );
 
 		$parent_cardinality = $definition->get_cardinality()->get_parent();
 		if ( $parent_cardinality < 0 ) {
@@ -130,10 +178,18 @@ class Relationships extends Types_Command {
 		}
 		$child_items_number = min( $relationship_args['child-items'], $child_cardinality );
 
+		$parent_items_ids = array();
 		if ( $parent_items_number ) {
 			$parent_items_ids = $this->generate_post_items( $parent_post_type_object, $parent_items_number );
 		}
 		if ( $child_items_number ) {
+			if ( empty( $parent_items_ids ) ) {
+				$parent_items_ids = get_posts( array(
+					'fields' => 'ids',
+					'posts_per_page' => -1,
+					'post_type' => $parent_post_type_object->get_slug(),
+				) );
+			}
 			// The behaviour differs depending on the relationship type.
 			if ( ! empty( $parent_items_ids ) && $definition->get_cardinality()->is_one_to_many() ) {
 				$this->generate_child_items_and_relate_one_to_many( $child_post_type_object, $child_items_number, $parent_items_ids, $definition );
