@@ -170,7 +170,7 @@ class Group extends Types_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp item generate --count=100 --domain=terms
+	 *    wp field group generate --count=100 --domain=terms
 	 *
 	 * @subcommand generate
 	 * @synopsis [--count=<number>] [--domain=<domain>]
@@ -215,11 +215,11 @@ class Group extends Types_Command {
 	}
 
 	/**
-	 * Deletes all existing items.
+	 * Deletes all existing field groups.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp item empty
+	 *    wp field group empty
 	 *
 	 * @subcommand empty
 	 *
@@ -228,14 +228,14 @@ class Group extends Types_Command {
 	public function empty( $args, $assoc_args ) {
 		$items = $this->get_items();
 		if ( ! empty( $items ) ) {
-			$progress = \WP_CLI\Utils\make_progress_bar( __( 'Deleting items', 'toolset-cli' ), count( $items ) );
+			$progress = \WP_CLI\Utils\make_progress_bar( __( 'Deleting field groups', 'toolset-cli' ), count( $items ) );
 			foreach ( $items as $item ) {
 				$this->delete_item( $item['id'], true );
 				$progress->tick();
 			}
 			$progress->finish();
 		} else {
-			\WP_CLI::warning( __( 'There are no items to empty.', 'toolset-cli' ) );
+			\WP_CLI::warning( __( 'There are no field groups to delete.', 'toolset-cli' ) );
 		}
 	}
 

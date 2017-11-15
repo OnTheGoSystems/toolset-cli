@@ -16,6 +16,7 @@ class Toolset_CLI_Service {
 
 		'types' => array(
 			'types' => '\Toolset_CLI\Types\Types',
+			'posttype' => '\Toolset_CLI\Types\Post_Type\Post_Type',
 			'field group' => '\Toolset_CLI\Types\Field\Group',
 			'relationship' => '\Toolset_CLI\Types\Relationship',
 		),
