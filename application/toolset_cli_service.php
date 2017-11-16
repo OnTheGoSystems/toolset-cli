@@ -17,7 +17,7 @@ class Toolset_CLI_Service {
 		'types' => array(
 			'types' => '\Toolset_CLI\Types\Types',
 			'field group' => '\Toolset_CLI\Types\Field\Group',
-			'relationships' => '\Toolset_CLI\Types\Relationships',
+			'relationship' => '\Toolset_CLI\Types\Relationship',
 		),
 	);
 

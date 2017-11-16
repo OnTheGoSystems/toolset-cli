@@ -5,11 +5,11 @@ namespace Toolset_CLI\Types;
 use Toolset_CLI\Types\Types_Command;
 
 /**
- * Relationships commands.
+ * Relationship commands.
  *
  * @package Toolset_CLI\Types
  */
-class Relationships extends Types_Command {
+class Relationship extends Types_Command {
 
 	/**
 	 * Constructor
@@ -55,9 +55,9 @@ class Relationships extends Types_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp types relationships create --parent=posts --child=media --definition=featured-video
-	 *    wp types relationships create --parent=book,Books,Book --child=book-author,Authors,Author --definition=authorship,Authorships,Authorship
-	 *    wp types relationships create --parent=book,Books,Book --child=book-author,Authors,Author --definition=authorship,Authorships,Authorship --cardinality=*..*
+	 *    wp types relationship create --parent=posts --child=media --definition=featured-video
+	 *    wp types relationship create --parent=book,Books,Book --child=book-author,Authors,Author --definition=authorship,Authorships,Authorship
+	 *    wp types relationship create --parent=book,Books,Book --child=book-author,Authors,Author --definition=authorship,Authorships,Authorship --cardinality=*..*
 	 *
 	 * @subcommand create
 	 * @synopsis [--parent=<string>] [--child=<string>] [--definition=<string>] [--cardinality=<string>]
@@ -78,16 +78,16 @@ class Relationships extends Types_Command {
 		$relationship_args = wp_parse_args( $assoc_args, $defaults );
 
 		if ( ! isset( $relationship_args['parent'] ) ) {
-			\WP_CLI::runcommand( 'help types relationships generate' );
+			\WP_CLI::runcommand( 'help types relationship generate' );
 			\WP_CLI::error( 'Parent post type is required' );
 		}
 		if ( ! isset( $relationship_args['child'] ) ) {
 			\WP_CLI::error( 'Child post type is required' );
-			\WP_CLI::runcommand( 'help types relationships generate' );
+			\WP_CLI::runcommand( 'help types relationship generate' );
 		}
 		if ( ! isset( $relationship_args['definition'] ) ) {
 			\WP_CLI::error( 'Relationship definition is required' );
-			\WP_CLI::runcommand( 'help types relationships generate' );
+			\WP_CLI::runcommand( 'help types relationship generate' );
 		}
 
 		// <slug>,<plural>,<singular>.
@@ -129,8 +129,8 @@ class Relationships extends Types_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp types relationships generate --definition=authorship --parent-items=10000 --child-items=10000
-	 *    wp types relationships generate --definition=authorship --child-items=10000
+	 *    wp types relationship generate --definition=authorship --parent-items=10000 --child-items=10000
+	 *    wp types relationship generate --definition=authorship --child-items=10000
 	 *
 	 * @subcommand generate
 	 * @synopsis [--parent=<string>] [--child=<string>] [--definition=<string>] [--cardinality=<string>] [--parent-items=<string>] [--child-items=<string>]
@@ -153,7 +153,7 @@ class Relationships extends Types_Command {
 
 		if ( ! isset( $relationship_args['definition'] ) ) {
 			\WP_CLI::error( 'Relationship definition is required' );
-			\WP_CLI::runcommand( 'help types m2m relationships generate' );
+			\WP_CLI::runcommand( 'help types relationship generate' );
 		}
 
 		$definition_repository = \Toolset_Relationship_Definition_Repository::get_instance();
