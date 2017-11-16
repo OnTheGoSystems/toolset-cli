@@ -15,11 +15,16 @@ class Toolset_CLI_Service {
 	private static $commands = array(
 
 		'types' => array(
-			'types' => '\Toolset_CLI\Types\Types',
-			'posttype' => '\Toolset_CLI\Types\Post_Type\Post_Type',
-			'field group' => '\Toolset_CLI\Types\Field\Group',
+			'types'        => '\Toolset_CLI\Types\Types',
+			'posttype'     => '\Toolset_CLI\Types\Post_Type\Post_Type',
+			'field group'  => '\Toolset_CLI\Types\Field\Group',
 			'relationship' => '\Toolset_CLI\Types\Relationship',
 		),
+		'views' => array(
+			'archive'  => '\Toolset_CLI\Views\WPA',
+			'view' => '\Toolset_CLI\Views\View',
+			'template'   => '\Toolset_CLI\Views\CT'
+		)
 	);
 
 	private static $instance;
@@ -95,6 +100,9 @@ class Toolset_CLI_Service {
 		switch ( $plugin ) {
 			case 'types':
 				return apply_filters( 'types_is_active', false );
+				break;
+			case 'views':
+				return defined( 'WPV_VERSION' );
 				break;
 		}
 
