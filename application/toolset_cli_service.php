@@ -15,10 +15,11 @@ class Toolset_CLI_Service {
 	private static $commands = array(
 
 		'types' => array(
-			'types'        => '\Toolset_CLI\Types\Types',
-			'posttype'     => '\Toolset_CLI\Types\Post_Type\Post_Type',
-			'field group'  => '\Toolset_CLI\Types\Field\Group',
+			'types' => '\Toolset_CLI\Types\Types',
+			'posttype' => '\Toolset_CLI\Types\Post_Type',
+			'field group' => '\Toolset_CLI\Types\Field_Group',
 			'relationship' => '\Toolset_CLI\Types\Relationship',
+			'association' => '\Toolset_CLI\Types\Association',
 		),
 		'views' => array(
 			'archive'  => '\Toolset_CLI\Views\WPA',
@@ -99,7 +100,7 @@ class Toolset_CLI_Service {
 	private function is_plugin_active( $plugin ) {
 		switch ( $plugin ) {
 			case 'types':
-				return apply_filters( 'types_is_active', false );
+				return ( apply_filters( 'types_is_active', false ) && $this->is_m2m_active() );
 				break;
 			case 'views':
 				return defined( 'WPV_VERSION' );
@@ -107,6 +108,24 @@ class Toolset_CLI_Service {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Checks if m2m is active.
+	 *
+	 * @return bool Whether m2m is active.
+	 */
+	private function is_m2m_active() {
+		if ( ! apply_filters( 'toolset_is_m2m_enabled', false ) ) {
+			\WP_CLI::error( __( 'm2m is not active.', 'toolset-cli' ) );
+			return false;
+		}
+		if ( ! defined( 'TOOLSET_VERSION' ) || version_compare( TOOLSET_VERSION, "2.5.3" ) < 0 ) {
+			\WP_CLI::error( __( 'Toolset Common version is old, please update to the latest one.', 'toolset-cli' ) );
+			return false;
+		}
+
+		return true;
 	}
 
 }

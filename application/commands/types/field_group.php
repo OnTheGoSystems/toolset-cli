@@ -1,15 +1,13 @@
 <?php
 
-namespace Toolset_CLI\Types\Field;
-
-use Toolset_CLI\Types\Types_Command;
+namespace Toolset_CLI\Types;
 
 /**
  * Field group commands.
  *
- * @package Toolset_CLI\Types\Field
+ * @package Toolset_CLI\Types
  */
-class Group extends Types_Command {
+class Field_Group extends Types_Command {
 
 	/**
 	 * Displays a list of field groups.
@@ -17,19 +15,17 @@ class Group extends Types_Command {
 	 * ## OPTIONS
 	 *
 	 * [--domain=<domain>]
-	 * : The domain of the group.
-	 * Can take values: posts, terms, users. Default: posts.
+	 * : The domain of the group. Can take values: posts, terms, users. Default: posts.
 	 *
 	 * [--status=<status>]
 	 * : Whether to return public or private field groups. Can take values: public, private. Default: public.
 	 *
 	 * [--format=<format>]
-	 * : The format of the output.
-	 * Can take values: – table, csv, ids, json, count, yaml. Default: table.
+	 * : The format of the output. Can take values: – table, csv, ids, json, count, yaml. Default: table.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp field group list --domain=posts --status=public --format=json
+	 *    wp types field group list --domain=posts --status=public --format=json
 	 *
 	 * @subcommand list
 	 * @synopsis [--domain=<domain>] [--status=<status>] [--format=<format>]
@@ -123,15 +119,14 @@ class Group extends Types_Command {
 	 * : The title of the group. Default: random string.
 	 *
 	 * [--domain=<domain>]
-	 * : The domain of the group.
-	 * Can take values: posts, terms, users. Default: posts.
+	 * : The domain of the group. Can take values: posts, terms, users. Default: posts.
 	 *
 	 * [--status=<bool>]
 	 * : The status of the group.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp field group create --name=my-group --title='My Group' --domain=terms
+	 *    wp types field group create --name=my-group --title='My Group' --domain=terms
 	 *
 	 * @subcommand create
 	 * @synopsis [--name=<string>] [--title=<string>] [--domain=<domain>] [--status=<bool>]
@@ -165,12 +160,11 @@ class Group extends Types_Command {
 	 * : How many items to generate. Default: 10
 	 *
 	 * [--domain=<domain>]
-	 * : The domain of the group.
-	 * Can take values: posts, terms, users. Default: posts.
+	 * : The domain of the group. Can take values: posts, terms, users. Default: posts.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp field group generate --count=100 --domain=terms
+	 *   wp types field group generate --count=100 --domain=terms
 	 *
 	 * @subcommand generate
 	 * @synopsis [--count=<number>] [--domain=<domain>]
@@ -184,7 +178,7 @@ class Group extends Types_Command {
 		);
 		$list_args = wp_parse_args( $assoc_args, $defaults );
 
-		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating items', 'toolset-cli' ), $list_args['count'] );
+		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating field groups', 'toolset-cli' ), $list_args['count'] );
 		for ( $i = 0; $i < $list_args['count']; $i ++ ) {
 			$this->create_item( $list_args['domain'] );
 			$progress->tick();
@@ -219,7 +213,7 @@ class Group extends Types_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp field group empty
+	 *    wp types field group empty
 	 *
 	 * @subcommand empty
 	 *
@@ -252,7 +246,7 @@ class Group extends Types_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp field group delete 42 --force=true
+	 *    wp types field group delete 42 --force=true
 	 *
 	 * @subcommand delete
 	 * @synopsis <id> [--force=<bool>]

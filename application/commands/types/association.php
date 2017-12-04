@@ -1,0 +1,137 @@
+<?php
+
+namespace Toolset_CLI\Types;
+
+/**
+ * Association commands.
+ *
+ * @package Toolset_CLI\Types
+ */
+class Association extends Types_Command {
+
+	/**
+	 * Creates an association between two items.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--relationship=<string>]
+	 * : The relationship slug.
+	 *
+	 * [--first=<number>]
+	 * : ID of the first item
+	 *
+	 * [--second=<number>]
+	 * : ID of the second item
+	 *
+	 * ## EXAMPLES
+	 *
+	 *    wp types association create --relationship=relationship-slug --first=12 --second=25
+	 *
+	 * @subcommand create
+	 * @synopsis [--first=<string>] [--second=<string>] [--relationship=<string>]
+	 *
+	 * @since 1.0
+	 */
+	public function create( $args, $assoc_args ) {
+		$defaults = array(
+			'first' => null,
+			'second' => null,
+			'relationship' => null,
+		);
+
+		$args = wp_parse_args( $assoc_args, $defaults );
+
+		if ( ( $args['first'] == null ) || ( $args['second'] == null ) ) {
+			\WP_CLI::error( __( 'Please insert valid item IDs.', 'toolset-cli' ) );
+		}
+
+		$definition_repository = \Toolset_Relationship_Definition_Repository::get_instance();
+		$definition = $definition_repository->get_definition( $args['relationship'] );
+
+		if ( ! isset( $args['relationship'] ) || ( $definition == null ) ) {
+			\WP_CLI::error( __( 'Please insert a valid relationship.', 'toolset-cli' ) );
+		}
+
+		try {
+			$assocation = $definition->create_association( $args['first'], $args['second'] );
+
+			if ( is_a( $assocation, 'Toolset_Result' ) && $assocation->is_error() ) {
+				\WP_CLI::error( __( 'Could not create association. ' . $assocation->get_message(), 'toolset-cli' ) );
+			}
+		} catch ( Exception $e ) {
+			\WP_CLI::error( __( 'Could not create association.', 'toolset-cli' ) );
+		}
+
+		\WP_CLI::success( __( 'Created association.', 'toolset-cli' ) );
+	}
+
+	/**
+	 * Bulk generates associations. Posts involved in associations are created automatically.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--count-first=<number>]
+	 * : How many items of the first part involved in the relationship to generate. Default: 1
+	 *
+	 * [--count-second=<number>]
+	 * : How many items of the second part involved in the relationship to generate for each one of the first part.
+	 * Default: 10
+	 *
+	 * [--relationship=<string>]
+	 * : The relationship slug.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *    wp types association generate --count-first=2 --count-second=20 --relationship=relationship-slug
+	 *
+	 * @subcommand generate
+	 * @synopsis [--count-first=<number>] [--count-second=<number>] [--relationship=<string>]
+	 *
+	 * @since 1.0
+	 */
+	public function generate( $args, $assoc_args ) {
+		$defaults = array(
+			'count-first' => 1,
+			'count-second' => 10,
+			'relationship' => null,
+		);
+		$args = wp_parse_args( $assoc_args, $defaults );
+
+		$definition_repository = \Toolset_Relationship_Definition_Repository::get_instance();
+		$definition = $definition_repository->get_definition( $args['relationship'] );
+
+		if ( ! isset( $args['relationship'] ) || ( $definition == null ) ) {
+			\WP_CLI::error( __( 'Please insert a valid relationship.', 'toolset-cli' ) );
+		}
+
+		$first_post_type = $definition->get_parent_type()->get_types()[0];
+		$second_post_type = $definition->get_child_type()->get_types()[0];
+
+		$wpcli_command_options = array(
+			'return' => true,
+			'exit_error' => true,
+		);
+
+		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating associations', 'toolset-cli' ), $args['count-first'] * $args['count-second'] );
+		for ( $i = 0; $i < $args['count-first']; $i ++ ) {
+			$first_item = \WP_CLI::runcommand( 'post create --porcelain --post_status=publish --post_type=' . $first_post_type . ' --post_title=' . \Toolset_CLI\get_random_string(), $wpcli_command_options );
+
+			for ( $j = 0; $j < $args['count-second']; $j ++ ) {
+				$second_item = \WP_CLI::runcommand( 'post create --porcelain --post_status=publish --post_type=' . $second_post_type . ' --post_title=' . \Toolset_CLI\get_random_string(), $wpcli_command_options );
+				
+				try {
+					$assocation = $definition->create_association( $first_item, $second_item );
+
+					if ( is_a( $assocation, 'Toolset_Result' ) && $assocation->is_error() ) {
+						\WP_CLI::warning( __( 'Could not create association. ' . $assocation->get_message(), 'toolset-cli' ) );
+					}
+				} catch ( Exception $e ) {
+					\WP_CLI::error( __( 'Could not create association.', 'toolset-cli' ) );
+				}
+
+				$progress->tick();
+			}
+		}
+		$progress->finish();
+	}
+}

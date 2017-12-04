@@ -2,8 +2,6 @@
 
 namespace Toolset_CLI\Types;
 
-use Toolset_CLI\Types\Types_Command;
-
 /**
  * Relationship commands.
  *
@@ -12,227 +10,164 @@ use Toolset_CLI\Types\Types_Command;
 class Relationship extends Types_Command {
 
 	/**
-	 * Constructor
-	 */
-	public function __construct() {
-		parent::__construct();
-		// I don't know why it is not defined.
-		if ( !defined('TOOLSET_EDIT_LAST' )){
-			define( 'TOOLSET_EDIT_LAST', '_toolset_edit_last');
-		}
-		do_action( 'toolset_do_m2m_full_init' );
-	}
-
-
-	/**
-	 * Creates a relationship between two CPT, if they doesn't exist they will be created.
+	 * Displays a list of relationships.
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--parent=<cpt>]
-	 * : The parent post type. Required.
-	 * Can take values: post, page, media, <string>.
-	 * If the post type doesn't exist it will be created.
-	 * Singular and plural names can be set using comas:
-	 * <slug>,<plural>,<singular> => book,Books,Book
-	 *
-	 * [--child=<cpt>]
-	 * : The child post type. Required.
-	 * Can take values: post, page, media, <string>.
-	 * If the post type doesn't exist it will be created.
-	 * Singular and plural names can be set using comas:
-	 * <slug>,<plural>,<singular> => book-author,Authors,Author
-	 *
-	 * [--definition=<relationship>]
-	 * : The relationship. Required.
-	 * Can take values: <string>.
-	 * Singular and plural names can be set using comas:
-	 * <slug>,<plural>,<singular> => authorship,Authorships,Authorship
-	 *
-	 * [--cardinality=<string>]
-	 * : Relationship type: Many to many, one to many or one to one. Default: *..*
-	 * Can take values: *..*, <number>..*, <number>..<number>,  .
+	 * [--format=<format>]
+	 * : The format of the output. Can take values: table, csv, json, count, yaml. Default: table.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp types relationship create --parent=posts --child=media --definition=featured-video
-	 *    wp types relationship create --parent=book,Books,Book --child=book-author,Authors,Author --definition=authorship,Authorships,Authorship
-	 *    wp types relationship create --parent=book,Books,Book --child=book-author,Authors,Author --definition=authorship,Authorships,Authorship --cardinality=*..*
+	 *    wp types relationship list --format=json
+	 *
+	 * @subcommand list
+	 * @synopsis [--format=<format>]
+	 *
+	 * @since 1.0
+	 */
+	public function list( $args, $assoc_args ) {
+		$defaults = array(
+			'format' => 'table',
+		);
+		$list_args = wp_parse_args( $assoc_args, $defaults );
+
+		$items = $this->get_items();
+
+		\WP_CLI\Utils\format_items( $list_args['format'], $items, $this->get_columns() );
+	}
+
+	/**
+	 * Get all relationships.
+	 *
+	 * @return array
+	 */
+	private function get_items() {
+		$definition_repository = \Toolset_Relationship_Definition_Repository::get_instance();
+		$definitions = $definition_repository->get_definitions();
+
+		$return_items = array();
+		foreach ( $definitions as $definition ) {
+			$first_limit = ( $definition->get_cardinality()->get_parent( 'max' ) == - 1 ) ? "*" : $definition->get_cardinality()->get_parent( 'max' );
+			$second_limit = ( $definition->get_cardinality()->get_child( 'max' ) == - 1 ) ? "*" : $definition->get_cardinality()->get_child( 'max' );
+
+			$return_items[] = array(
+				'slug' => $definition->get_slug(),
+				'singular' => $definition->get_display_name_singular(),
+				'plural' => $definition->get_display_name_plural(),
+				'first_post_type' => $definition->get_child_type()->get_types()[0],
+				'second_post_type' => $definition->get_parent_type()->get_types()[0],
+				'limits' => $first_limit . '..' . $second_limit,
+				'active' => $definition->is_active() ? __( 'Yes', 'toolset-cli' ) : __( 'No', 'toolset-cli' ),
+			);
+		}
+
+		return $return_items;
+	}
+
+	/**
+	 * Returns the columns of the list command.
+	 *
+	 * @return string[] The columns of the list command.
+	 */
+	protected function get_columns() {
+		$columns = array(
+			'slug',
+			'singular',
+			'plural',
+			'first_post_type',
+			'second_post_type',
+			'limits',
+			'active',
+		);
+
+		return $columns;
+	}
+
+	/**
+	 * Creates a relationship between two post types.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--first=<cpt>]
+	 * : The first post type slug. Required.
+	 *
+	 * [--second=<cpt>]
+	 * : The second post type slug. Required.
+	 *
+	 * [--slug=<string>]
+	 * : The relationship slug. Required.
+	 *
+	 * [--cardinality=<string>]
+	 * : Relationship type: Many to many, one to many or one to one. Can take values: *..*, <number>..*,
+	 * <number>..<number>. Defaults to *..*
+	 *
+	 * ## EXAMPLES
+	 *
+	 *    wp types relationship create --first=post --second=attachment --slug=featured-video --cardinality=1..*
 	 *
 	 * @subcommand create
-	 * @synopsis [--parent=<string>] [--child=<string>] [--definition=<string>] [--cardinality=<string>]
+	 * @synopsis [--first=<string>] [--second=<string>] [--slug=<string>] [--cardinality=<string>]
 	 *
 	 * @since 1.0
 	 */
 	public function create( $args, $assoc_args ) {
-		if ( ! apply_filters( 'toolset_is_m2m_enabled', false ) ) {
-			\WP_CLI::error( 'Toolset m2m is not activated' );
-		}
-		if ( ! defined( 'TOOLSET_VERSION' ) || version_compare(TOOLSET_VERSION,  "2.5.3") < 0 ) {
-			\WP_CLI::error( 'Please, update your Toolset Common version' );
-		}
-
 		$defaults = array(
+			'first' => 'post',
+			'second' => 'page',
+			'slug' => 'post-page',
 			'cardinality' => '*..*',
 		);
 		$relationship_args = wp_parse_args( $assoc_args, $defaults );
 
-		if ( ! isset( $relationship_args['parent'] ) ) {
-			\WP_CLI::runcommand( 'help types relationship generate' );
-			\WP_CLI::error( 'Parent post type is required' );
-		}
-		if ( ! isset( $relationship_args['child'] ) ) {
-			\WP_CLI::error( 'Child post type is required' );
-			\WP_CLI::runcommand( 'help types relationship generate' );
-		}
-		if ( ! isset( $relationship_args['definition'] ) ) {
-			\WP_CLI::error( 'Relationship definition is required' );
-			\WP_CLI::runcommand( 'help types relationship generate' );
-		}
-
-		// <slug>,<plural>,<singular>.
-		$parent_post_type = explode( ',', $relationship_args['parent'] );
-		$parent_post_type_object = $this->create_post_type( $parent_post_type[0], toolset_getarr( $parent_post_type, 1, null), toolset_getarr( $parent_post_type, 2, null) );
-		// <slug>,<plural>,<singular>.
-		$child_post_type = explode( ',', $relationship_args['child'] );
-		$child_post_type_object = $this->create_post_type( $child_post_type[0], toolset_getarr( $child_post_type, 1, null), toolset_getarr( $child_post_type, 2, null) );
-		$definition_data = explode( ',', $relationship_args['definition'] );
-
 		$definition_extra = array(
-			'name' => toolset_getarr( $definition_data, 1, '' ),
-			'singular_name' => toolset_getarr( $definition_data, 1, '' ),
-			'cardinality' => toolset_getarr( $relationship_args, 'cardinality', false ),
+			'name' => $relationship_args['slug'],
+			'singular_name' => $relationship_args['slug'],
+			'cardinality' => $relationship_args['cardinality'],
 		);
 
-		$definition = $this->create_relationship( $definition_data[0], $parent_post_type_object, $child_post_type_object, $definition_extra );
-		\WP_CLI::success( 'Command executed correctly' );
+		$definition = $this->create_item( $relationship_args['slug'], $relationship_args['first'], $relationship_args['second'], $definition_extra );
+		\WP_CLI::success( __( 'Created relationship.', 'toolset-cli' ) );
 	}
 
-
 	/**
-	 * Generates a relationship between two CPT, if they doesn't exist they will be created.
+	 * Bulk generates relationships.
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--definition=<relationship>]
-	 * : The relationship slug. Required.
-	 * Can take values: <string>.
-	 *
-	 * [--parent-items=<number>]
-	 * : Number of parent items created for testing. If it is not set and `--child-items` is, it will take the existing posts.
-	 * It depends on the cardinality:
-	 *    - if value is 10 and cardinality is 1..*, it will create 10 items and will relate them to some new N `--child-items` items
-	 *    - if value is 10 and cardinality is *..*, it will create 10 items and will related them with some of the existing N `--child-items` items
-	 *
-	 * [--child-items=<number>]
-	 * : Number of child items created for testing. Default: 0
+	 * [--count=<number>]
+	 * : How many items to generate. Default: 10
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp types relationship generate --definition=authorship --parent-items=10000 --child-items=10000
-	 *    wp types relationship generate --definition=authorship --child-items=10000
+	 *    wp types relationship generate --count=100
 	 *
 	 * @subcommand generate
-	 * @synopsis [--parent=<string>] [--child=<string>] [--definition=<string>] [--cardinality=<string>] [--parent-items=<string>] [--child-items=<string>]
+	 * @synopsis [--count=<number>]
 	 *
 	 * @since 1.0
 	 */
 	public function generate( $args, $assoc_args ) {
-		if ( ! apply_filters( 'toolset_is_m2m_enabled', false ) ) {
-			\WP_CLI::error( 'Toolset m2m is not activated' );
-		}
-		if ( ! defined( 'TOOLSET_VERSION' ) || version_compare(TOOLSET_VERSION,  "2.5.3") < 0 ) {
-			\WP_CLI::error( 'Please, update your Toolset Common version' );
-		}
-
 		$defaults = array(
-			'parent-items' => 0,
-			'child-items' => 0,
+			'count' => 10,
 		);
-		$relationship_args = wp_parse_args( $assoc_args, $defaults );
+		$list_args = wp_parse_args( $assoc_args, $defaults );
 
-		if ( ! isset( $relationship_args['definition'] ) ) {
-			\WP_CLI::error( 'Relationship definition is required' );
-			\WP_CLI::runcommand( 'help types relationship generate' );
+		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating relationships', 'toolset-cli' ), $list_args['count'] );
+		for ( $i = 0; $i < $list_args['count']; $i ++ ) {
+			$this->create_item();
+			$progress->tick();
 		}
-
-		$definition_repository = \Toolset_Relationship_Definition_Repository::get_instance();
-		$definition = $definition_repository->get_definition( $relationship_args['definition'] );
-		if ( ! isset( $relationship_args['definition'] ) ) {
-			\WP_CLI::error( 'Relationship definition doesn\'t exist, please create it.' );
-		}
-		$post_type_repository = \Toolset_Post_Type_Repository::get_instance();
-		$parent_post_type_object = $post_type_repository->get( $definition->get_parent_type()->get_types()[0] );
-		$child_post_type_object = $post_type_repository->get( $definition->get_child_type()->get_types()[0] );
-
-		$parent_cardinality = $definition->get_cardinality()->get_parent();
-		if ( $parent_cardinality < 0 ) {
-			$parent_cardinality = PHP_INT_MAX;
-		}
-		$parent_items_number = $definition->get_cardinality()->is_one_to_many()
-			? $relationship_args['parent-items']
-			: min( $relationship_args['parent-items'], $parent_cardinality );
-		$child_cardinality = $definition->get_cardinality()->get_child();
-		if ( $child_cardinality < 0 ) {
-			$child_cardinality = PHP_INT_MAX;
-		}
-		$child_items_number = min( $relationship_args['child-items'], $child_cardinality );
-
-		$parent_items_ids = array();
-		if ( $parent_items_number ) {
-			$parent_items_ids = $this->generate_post_items( $parent_post_type_object, $parent_items_number );
-		}
-		if ( $child_items_number ) {
-			if ( empty( $parent_items_ids ) ) {
-				$parent_items_ids = get_posts( array(
-					'fields' => 'ids',
-					'posts_per_page' => -1,
-					'post_type' => $parent_post_type_object->get_slug(),
-				) );
-			}
-			// The behaviour differs depending on the relationship type.
-			if ( ! empty( $parent_items_ids ) && $definition->get_cardinality()->is_one_to_many() ) {
-				$this->generate_child_items_and_relate_one_to_many( $child_post_type_object, $child_items_number, $parent_items_ids, $definition );
-			} elseif ( ! empty( $parent_items_ids ) && ! $definition->get_cardinality()->is_one_to_many() ) {
-				$this->generate_child_items_and_relate_many_to_many( $child_post_type_object, $child_items_number, $parent_items_ids, $definition );
-			}
-		}
-		\WP_CLI::success( 'Command executed correctly' );
+		$progress->finish();
 	}
 
-
 	/**
-	 * Creates a new Post type object using m2m API
+	 * Creates a new relationship definition.
 	 *
-	 * @param String $slug Post type slug.
-	 * @param String $name Post type plural name.
-	 * @param String $singular_name Post type singular name.
-	 *
-	 * @return IToolset_Post_Type
-	 */
-	private function create_post_type( $slug, $name = null, $singular_name = null ) {
-		$post_type_repository = \Toolset_Post_Type_Repository::get_instance();
-		$parent_post_type_obj = $post_type_repository->get( $slug );
-		if ( ! $parent_post_type_obj ) {
-			$name = $name? $name : $slug;
-			$singular_name = $singular_name? $singular_name : $slug;
-			$parent_post_type_obj = $post_type_repository->create( $slug, $name, $singular_name );
-			\WP_CLI::log( "Post type {$slug} created" );
-			$post_type_repository->save( $parent_post_type_obj );
-		} else {
-			\WP_CLI::log( "Post type {$slug} exists" );
-		}
-		return $parent_post_type_obj;
-	}
-
-
-	/**
-	 * Creates a new post type object
-	 *
-	 * @param String             $slug Relationship slug.
-	 * @param IToolset_Post_Type $parent_post_type Parent post type object.
-	 * @param IToolset_Post_Type $child_post_type Child post type object.
-	 * @param Mixed[]            $extra Extra data: [
+	 * @param string $slug Relationship slug.
+	 * @param string $first_post_type_slug The first post type slug.
+	 * @param string $second_post_type_slug The second post type slug.
+	 * @param Mixed[] $extra Extra data: [
 	 *                                                name: Definition name
 	 *                                                singular_name: Definition singular name
 	 *                                                cardinality: example: *..*
@@ -240,144 +175,153 @@ class Relationship extends Types_Command {
 	 *
 	 * @return Toolset_Relationship_Definition
 	 */
-	private function create_relationship( $slug, \IToolset_Post_Type $parent_post_type, \IToolset_Post_Type $child_post_type, $extra = null ) {
+	private function create_item( $slug = 'post-page', $first_post_type_slug = 'post', $second_post_type_slug = 'page', $extra = array() ) {
+		if ( empty ( $slug ) ) {
+			$slug = \Toolset_CLI\get_random_string();
+		}
+		if ( $this->get_post_type( $first_post_type_slug ) == null ) {
+			\WP_CLI::error( __( 'First post type does not exist.', 'toolset-cli' ) );
+		}
+		if ( $this->get_post_type( $second_post_type_slug ) == null ) {
+			\WP_CLI::error( __( 'Second post type does not exist.', 'toolset-cli' ) );
+		}
+
 		$definition_repository = \Toolset_Relationship_Definition_Repository::get_instance();
-		$parent_element = \Toolset_Relationship_Element_Type::build_for_post_type( $parent_post_type->get_slug() );
-		$child_element = \Toolset_Relationship_Element_Type::build_for_post_type( $child_post_type->get_slug() );
-		$definition = $definition_repository->create_definition( $slug, $parent_element, $child_element );
+		$parent_post_type = \Toolset_Relationship_Element_Type::build_for_post_type( $first_post_type_slug );
+		$child_post_type = \Toolset_Relationship_Element_Type::build_for_post_type( $second_post_type_slug );
+		$definition = $definition_repository->create_definition( $slug, $parent_post_type, $child_post_type );
+
 		if ( isset( $extra['name'] ) ) {
 			$definition->set_display_name( $extra['name'] );
 		}
+
 		if ( isset( $extra['singular_name'] ) ) {
 			$definition->set_display_name_singular( $extra['singular_name'] );
 		}
+
 		if ( isset( $extra['cardinality'] ) ) {
-			$cardinality = explode( '..', $extra['cardinality'] );
-			if ( count( $cardinality ) === 2 ) {
-				switch ( $cardinality[0] ) {
-					case '*':
-						$parent_cardinality = \Toolset_Relationship_Cardinality::INFINITY;
-						break;
-					default:
-						$parent_cardinality = (int) $cardinality[0];
-						break;
-				}
-				switch ( $cardinality[1] ) {
-					case '*':
-						$child_cardinality = \Toolset_Relationship_Cardinality::INFINITY;
-						break;
-					default:
-						$child_cardinality = (int) $cardinality[1];
-						break;
-				}
-				$definition->set_cardinality( new \Toolset_Relationship_Cardinality( $parent_cardinality, $child_cardinality ) );
+
+			$cardinality_parts = explode( '..', $extra['cardinality'] );
+
+			if ( 2 === count( $cardinality_parts ) ) {
+				$extra['cardinality'] = '0..' . $cardinality_parts[0] . ':' . '0..' . $cardinality_parts[1];
+			} else {
+				\WP_CLI::error( __( 'Please enter a valid cardinality: *..*, <number>..*, <number>..<number>.', 'toolset-cli' ) );
+			}
+
+			try {
+				$cardinality = \Toolset_Relationship_Cardinality::from_string( $extra['cardinality'] );
+				$definition->set_cardinality( new \Toolset_Relationship_Cardinality( $cardinality->get_parent(), $cardinality->get_child() ) );
+			} catch ( \InvalidArgumentException $e ) {
+				\WP_CLI::error( __( 'Please enter a valid cardinality: *..*, <number>..*, <number>..<number>.', 'toolset-cli' ) );
 			}
 		}
-		$definition_repository->save_definitions();
-		\WP_CLI::log( "Relationship definition {$slug} created" );
+		$definition_repository->persist_definition( $definition );
+
 		return $definition;
 	}
 
-
 	/**
-	 * Generates a list of post types
+	 * Deletes all existing relationships.
 	 *
-	 * @param IToolset_Post_Type $post_type Post type element.
-	 * @param Integer            $count Number of post type to create.
+	 * ## OPTIONS
 	 *
-	 * @return Integer[] List of IDs of posts created.
+	 * [--cleanup=<bool>]
+	 * : Whether to delete related associations, intermediary post type and the intermediary post field group, if they
+	 * exist. Defaults to true.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *    wp types relationship empty --cleanup=false
+	 *
+	 * @subcommand empty [--cleanup=<bool>]
+	 *
+	 * @since 1.0
 	 */
-	private function generate_post_items( \IToolset_Post_Type $post_type, $count ) {
-		$ids = array();
-		$post_type_name = $post_type->get_label();
-		$post_type_slug = $post_type->get_slug();
-		$progress = \WP_CLI\Utils\make_progress_bar( "Generating {$post_type_name} items", $count );
-		for( $i = 0; $i < $count; $i++ ) {
-			$post = array(
-				'post_title' => $post_type_name . ' #' . ( $i + 1 ),
-				'post_type' => $post_type_slug,
-				'post_status' => 'publish',
-			);
-			$ids[] = wp_insert_post( $post );
-			$progress->tick();
-		}
-		$progress->finish();
-		\WP_CLI::log( $count . ' items created' );
-		return $ids;
-	}
+	public function empty( $args, $assoc_args ) {
+		$defaults = array(
+			'cleanup' => true,
+		);
+		$delete_args = wp_parse_args( $assoc_args, $defaults );
 
+		$definition_repository = \Toolset_Relationship_Definition_Repository::get_instance();
+		$definitions = $definition_repository->get_definitions();
 
-	/**
-	 * Generates a list of child post types and related them to the existing parents using a one-to-many relationship
-	 *
-	 * @param IToolset_Post_Type              $post_type Post type element.
-	 * @param Integer                         $max_count Number of post type to create.
-	 * @param Integer[]                       $parent_ids List of parents post ids.
-	 * @param Toolset_Relationship_Definition $definition Relationship definition.
-	 *
-	 * @return Integer[] List of IDs of posts created.
-	 */
-	private function generate_child_items_and_relate_one_to_many( \IToolset_Post_Type $post_type, $max_count, $parent_ids, \Toolset_Relationship_Definition $definition ) {
-		$ids = array();
-		$post_type_name = $post_type->get_label();
-		$post_type_slug = $post_type->get_slug();
-		$total_count = 0;
-
-		foreach( $parent_ids as $parent_id ) {
-			$count = rand( 1, $max_count );
-			\WP_CLI::log( "Creating relationships for parent ID:{$parent_id}" );
-			$progress = \WP_CLI\Utils\make_progress_bar( "Generating {$post_type_name} items for parent ID:{$parent_id}", $count );
-			for( $i = 0; $i < $count; $i++ ) {
-				$post = array(
-					'post_title' => $post_type_name . ' #' . ( $total_count + 1 ),
-					'post_type' => $post_type_slug,
-					'post_status' => 'publish',
-				);
-				$child_id = wp_insert_post( $post );
-				$definition->create_association( $parent_id, $child_id );
-				$ids[] = $child_id;
+		if ( ! empty( $definitions ) ) {
+			$progress = \WP_CLI\Utils\make_progress_bar( __( 'Deleting relationships', 'toolset-cli' ), count( $definitions ) );
+			foreach ( $definitions as $definition ) {
+				$this->delete_item( $definition->get_slug(), $delete_args['cleanup'] );
 				$progress->tick();
-				$total_count++;
 			}
 			$progress->finish();
+		} else {
+			\WP_CLI::warning( __( 'There are no relationships to delete.', 'toolset-cli' ) );
 		}
-		\WP_CLI::log( $total_count . ' items created and associated to they parent' );
-		return $ids;
 	}
 
+	/**
+	 * Deletes a relationship.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <slug>
+	 * : The slug of the relationship.
+	 *
+	 * [--cleanup=<bool>]
+	 * : Whether to delete related associations, intermediary post type and the intermediary post field group, if they
+	 * exist. Defaults to true.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *    wp types relationship delete relationship-slug --cleanup=false
+	 *
+	 * @subcommand delete
+	 * @synopsis <slug> [--cleanup=<bool>]
+	 *
+	 * @since 1.0
+	 */
+	public function delete( $args, $assoc_args ) {
+		$defaults = array(
+			'cleanup' => true,
+		);
+		$delete_args = wp_parse_args( $assoc_args, $defaults );
+
+		list( $slug ) = $args;
+
+		if ( empty( $slug ) ) {
+			\WP_CLI::error( __( 'You must specify a relationship slug.', 'toolset-cli' ) );
+		}
+
+		$delete_result = $this->delete_item( $slug, $delete_args['cleanup'] );
+
+		if ( $delete_result ) {
+			\WP_CLI::success( __( 'Deleted relationship.', 'toolset-cli' ) );
+		} else {
+			\WP_CLI::error( __( 'Relationship does not exist.', 'toolset-cli' ) );
+		}
+	}
 
 	/**
-	 * Generates a list of child post types and related them to the existing parents using a many-to-many relationship
+	 * Deletes a relationship.
 	 *
-	 * @param IToolset_Post_Type              $post_type Post type element.
-	 * @param Integer                         $child_count Number of post type to create.
-	 * @param Integer[]                       $parent_ids List of parents post ids.
-	 * @param Toolset_Relationship_Definition $definition Relationship definition.
-	 *
-	 * @return Integer[] List of IDs of posts created.
+	 * @param string $slug The slug of the relationship.
+	 * @param bool $do_cleanup true to delete related associations, intermediary post type and the intermediary post
+	 *     field group, if they exist.
 	 */
-	private function generate_child_items_and_relate_many_to_many( \IToolset_Post_Type $post_type, $child_count, $parent_ids, \Toolset_Relationship_Definition $definition ) {
-		$ids = array();
-		$total_count = 0;
-		$parent_count = count ( $parent_ids );
+	protected function delete_item( $slug, $do_cleanup = true ) {
+		$definition_repository = \Toolset_Relationship_Definition_Repository::get_instance();
+		$definition = $definition_repository->get_definition( $slug );
 
-		$child_ids = $this->generate_post_items( $post_type, $child_count );
-
-		$elements_ids = array( $parent_ids, $child_ids );
-		foreach( $elements_ids as $type => $element_ids ) {
-			$other_ids = $elements_ids[ ( $type + 1 ) % 2 ];
-			foreach( $element_ids as $element_id ) {
-				$related_id_keys = array_rand( $other_ids, rand( 1, count( $other_ids ) ) );
-				$progress = \WP_CLI\Utils\make_progress_bar( "Creating relationships for element ID:{$element_id}", count( $related_id_keys ) );
-				foreach( $related_id_keys as $related_id_key ) {
-					$definition->create_association( $element_id, $other_ids[ $related_id_key ] );
-					$progress->tick();
-					$total_count++;
-				}
-				$progress->finish();
-			}
+		if ( is_null( $definition ) ) {
+			return false;
 		}
-		\WP_CLI::log( $total_count . ' associations created' );
-		return $child_ids;
+
+		if ( ! is_bool( $do_cleanup ) ) {
+			$do_cleanup = $do_cleanup === 'false' ? false : true;
+		}
+
+		$definition_repository->remove_definition( $definition, $do_cleanup );
+
+		return true;
 	}
 }

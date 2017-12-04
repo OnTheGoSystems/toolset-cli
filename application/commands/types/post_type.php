@@ -1,8 +1,6 @@
 <?php
 
-namespace Toolset_CLI\Types\Post_Type;
-
-use Toolset_CLI\Types\Types_Command;
+namespace Toolset_CLI\Types;
 
 /**
  * Post Type commands.
@@ -20,8 +18,7 @@ class Post_Type extends Types_Command {
 	 * : The format of the output. Can take values: table, csv, json, count, yaml. Default: table.
 	 *
 	 * [--domain=<domain>]
-	 * : The domain of the group.
-	 * Can take values: all, types, builtin.
+	 * : The domain of the group. Can take values: all, types, builtin.
 	 *
 	 * [--intermediary=<bool>]
 	 * : Whether to return intermediay post types. Default: false.
@@ -31,7 +28,7 @@ class Post_Type extends Types_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp posttype list --format=json --domain=all --intermediary=true --repeating_field_group=true
+	 *    wp types posttype list --format=json --domain=all --intermediary=true --repeating_field_group=true
 	 *
 	 * @subcommand list
 	 * @synopsis [--format=<format>] [--domain=<domain>] [--intermediary=<bool>] [--repeating_field_group=<bool>]
@@ -119,7 +116,7 @@ class Post_Type extends Types_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp posttype create --slug='book' --singular='Book' --plural='Books'
+	 *    wp types posttype create --slug='book' --singular='Book' --plural='Books'
 	 *
 	 * @subcommand create
 	 * @synopsis [--slug=<string>] [--singular=<string>] [--plural=<string>]
@@ -153,7 +150,7 @@ class Post_Type extends Types_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp posttype generate --count=100
+	 *    wp types posttype generate --count=100
 	 *
 	 * @subcommand generate
 	 * @synopsis [--count=<number>]
@@ -166,7 +163,7 @@ class Post_Type extends Types_Command {
 		);
 		$list_args = wp_parse_args( $assoc_args, $defaults );
 
-		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating items', 'toolset-cli' ), $list_args['count'] );
+		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating post types', 'toolset-cli' ), $list_args['count'] );
 		for ( $i = 0; $i < $list_args['count']; $i ++ ) {
 			$this->create_item();
 			$progress->tick();
@@ -212,7 +209,7 @@ class Post_Type extends Types_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp posttype empty
+	 *    wp types posttype empty
 	 *
 	 * @subcommand empty
 	 *
@@ -228,7 +225,7 @@ class Post_Type extends Types_Command {
 			}
 			$progress->finish();
 		} else {
-			\WP_CLI::warning( __( 'There are no items to delete.', 'toolset-cli' ) );
+			\WP_CLI::warning( __( 'There are no post types to delete.', 'toolset-cli' ) );
 		}
 	}
 
@@ -242,7 +239,7 @@ class Post_Type extends Types_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp posttype delete book
+	 *    wp types posttype delete book
 	 *
 	 * @subcommand delete
 	 * @synopsis <slug>
@@ -254,9 +251,7 @@ class Post_Type extends Types_Command {
 		list( $slug ) = $args;
 
 		if ( empty( $slug ) ) {
-			\WP_CLI::warning( __( 'You must specify a post type slug.', 'toolset-cli' ) );
-
-			return;
+			\WP_CLI::error( __( 'You must specify a post type slug.', 'toolset-cli' ) );
 		}
 
 		$delete_result = $this->delete_item( $slug );
@@ -264,7 +259,7 @@ class Post_Type extends Types_Command {
 		if ( $delete_result ) {
 			\WP_CLI::success( __( 'Deleted post type.', 'toolset-cli' ) );
 		} else {
-			\WP_CLI::warning( __( 'Post type does not exist.', 'toolset-cli' ) );
+			\WP_CLI::error( __( 'Post type does not exist.', 'toolset-cli' ) );
 		}
 	}
 
