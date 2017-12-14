@@ -193,15 +193,19 @@ class Post_Type extends Types_Command {
 			$singular = $slug;
 		}
 
-		$post_type_repository = \Toolset_Post_Type_Repository::get_instance();
-		$post_type = $post_type_repository->create( $slug, $plural, $singular );
-		$post_type_repository->save( $post_type );
+		try {
+			$post_type_repository = \Toolset_Post_Type_Repository::get_instance();
+			$post_type = $post_type_repository->create( $slug, $plural, $singular );
+			$post_type_repository->save( $post_type );
 
-		// @todo This is a workaround to flush rewrite rules, until toolsetcommon-329 is fixed
-		register_post_type( $slug );
-		flush_rewrite_rules( false );
+			// @todo This is a workaround to flush rewrite rules, until toolsetcommon-329 is fixed
+			register_post_type( $slug );
+			flush_rewrite_rules( false );
 
-		return $post_type;
+			return $post_type;
+		} catch ( \RuntimeException $e ) {
+			\WP_CLI::error( $e->getMessage() );
+		}
 	}
 
 	/**
