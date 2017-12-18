@@ -126,8 +126,8 @@ class Post_Type extends Types_Command {
 	public function create( $args, $assoc_args ) {
 		$defaults = array(
 			'slug' => \Toolset_CLI\get_random_string(),
-			'plural' => \Toolset_CLI\get_random_string(),
-			'singular' => \Toolset_CLI\get_random_string(),
+			'plural' => '',
+			'singular' => '',
 		);
 		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 

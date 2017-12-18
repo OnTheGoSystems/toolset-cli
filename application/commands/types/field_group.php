@@ -136,7 +136,7 @@ class Field_Group extends Types_Command {
 	public function create( $args, $assoc_args ) {
 		$defaults = array(
 			'name' => \Toolset_CLI\get_random_string(),
-			'title' => \Toolset_CLI\get_random_string(),
+			'title' => '',
 			'domain' => 'posts',
 			'status' => true,
 		);
