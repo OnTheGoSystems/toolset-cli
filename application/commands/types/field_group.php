@@ -32,18 +32,18 @@ class Field_Group extends Types_Command {
 	 *
 	 * @since 1.0
 	 */
-	public function list( $args, $assoc_args ) {
+	public function list_items( $args, $assoc_args ) {
 		$defaults = array(
 			'format' => 'table',
 			'domain' => 'all',
 			'status' => 'public',
 		);
-		$list_args = wp_parse_args( $assoc_args, $defaults );
+		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 
-		$ids = $list_args['format'] == 'ids' ? true : false;
-		$items = $this->get_items( $list_args['domain'], $list_args['status'], $ids );
+		$ids = $assoc_args['format'] == 'ids' ? true : false;
+		$items = $this->get_items( $assoc_args['domain'], $assoc_args['status'], $ids );
 
-		\WP_CLI\Utils\format_items( $list_args['format'], $items, $this->get_columns() );
+		\WP_CLI\Utils\format_items( $assoc_args['format'], $items, $this->get_columns() );
 	}
 
 	/**
@@ -176,11 +176,11 @@ class Field_Group extends Types_Command {
 			'count' => 10,
 			'domain' => 'posts',
 		);
-		$list_args = wp_parse_args( $assoc_args, $defaults );
+		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 
-		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating field groups', 'toolset-cli' ), $list_args['count'] );
-		for ( $i = 0; $i < $list_args['count']; $i ++ ) {
-			$this->create_item( $list_args['domain'] );
+		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating field groups', 'toolset-cli' ), $assoc_args['count'] );
+		for ( $i = 0; $i < $assoc_args['count']; $i ++ ) {
+			$this->create_item( $assoc_args['domain'] );
 			$progress->tick();
 		}
 		$progress->finish();
@@ -219,7 +219,7 @@ class Field_Group extends Types_Command {
 	 *
 	 * @since 1.0
 	 */
-	public function empty( $args, $assoc_args ) {
+	public function empty_items( $args, $assoc_args ) {
 		$items = $this->get_items();
 		if ( ! empty( $items ) ) {
 			$progress = \WP_CLI\Utils\make_progress_bar( __( 'Deleting field groups', 'toolset-cli' ), count( $items ) );
@@ -266,9 +266,9 @@ class Field_Group extends Types_Command {
 		$defaults = array(
 			'force' => false,
 		);
-		$list_args = wp_parse_args( $assoc_args, $defaults );
+		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 
-		$delete_result = $this->delete_item( $id, $list_args['force'] );
+		$delete_result = $this->delete_item( $id, $assoc_args['force'] );
 
 		if ( $delete_result ) {
 			\WP_CLI::success( __( 'Deleted field group.', 'toolset-cli' ) );

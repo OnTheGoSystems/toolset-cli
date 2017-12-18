@@ -35,18 +35,18 @@ class Post_Type extends Types_Command {
 	 *
 	 * @since 1.0
 	 */
-	public function list( $args, $assoc_args ) {
+	public function list_items( $args, $assoc_args ) {
 		$defaults = array(
 			'format' => 'table',
 			'domain' => 'all',
 			'intermediary' => false,
 			'repeating_field_group' => false,
 		);
-		$list_args = wp_parse_args( $assoc_args, $defaults );
+		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 
-		$items = $this->get_items( $list_args['domain'], $list_args['intermediary'], $list_args['repeating_field_group'] );
+		$items = $this->get_items( $assoc_args['domain'], $assoc_args['intermediary'], $assoc_args['repeating_field_group'] );
 
-		\WP_CLI\Utils\format_items( $list_args['format'], $items, $this->get_columns() );
+		\WP_CLI\Utils\format_items( $assoc_args['format'], $items, $this->get_columns() );
 	}
 
 	/**
@@ -129,9 +129,9 @@ class Post_Type extends Types_Command {
 			'plural' => \Toolset_CLI\get_random_string(),
 			'singular' => \Toolset_CLI\get_random_string(),
 		);
-		$args = wp_parse_args( $assoc_args, $defaults );
+		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 
-		$post_type = $this->create_item( $args['slug'], $args['plural'], $args['singular'] );
+		$post_type = $this->create_item( $assoc_args['slug'], $assoc_args['plural'], $assoc_args['singular'] );
 
 		if ( ! empty ( $post_type ) ) {
 			\WP_CLI::success( __( 'Created post type.', 'toolset-cli' ) );
@@ -161,10 +161,10 @@ class Post_Type extends Types_Command {
 		$defaults = array(
 			'count' => 10,
 		);
-		$list_args = wp_parse_args( $assoc_args, $defaults );
+		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 
-		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating post types', 'toolset-cli' ), $list_args['count'] );
-		for ( $i = 0; $i < $list_args['count']; $i ++ ) {
+		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating post types', 'toolset-cli' ), $assoc_args['count'] );
+		for ( $i = 0; $i < $assoc_args['count']; $i ++ ) {
 			$this->create_item();
 			$progress->tick();
 		}
@@ -219,7 +219,7 @@ class Post_Type extends Types_Command {
 	 *
 	 * @since 1.0
 	 */
-	public function empty( $args, $assoc_args ) {
+	public function empty_items( $args, $assoc_args ) {
 		$items = $this->get_items( 'types' );
 		if ( ! empty( $items ) ) {
 			$progress = \WP_CLI\Utils\make_progress_bar( __( 'Deleting post types', 'toolset-cli' ), count( $items ) );

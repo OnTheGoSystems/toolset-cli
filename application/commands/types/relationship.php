@@ -26,15 +26,15 @@ class Relationship extends Types_Command {
 	 *
 	 * @since 1.0
 	 */
-	public function list( $args, $assoc_args ) {
+	public function list_items( $args, $assoc_args ) {
 		$defaults = array(
 			'format' => 'table',
 		);
-		$list_args = wp_parse_args( $assoc_args, $defaults );
+		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 
 		$items = $this->get_items();
 
-		\WP_CLI\Utils\format_items( $list_args['format'], $items, $this->get_columns() );
+		\WP_CLI\Utils\format_items( $assoc_args['format'], $items, $this->get_columns() );
 	}
 
 	/**
@@ -151,10 +151,10 @@ class Relationship extends Types_Command {
 		$defaults = array(
 			'count' => 10,
 		);
-		$list_args = wp_parse_args( $assoc_args, $defaults );
+		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 
-		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating relationships', 'toolset-cli' ), $list_args['count'] );
-		for ( $i = 0; $i < $list_args['count']; $i ++ ) {
+		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating relationships', 'toolset-cli' ), $assoc_args['count'] );
+		for ( $i = 0; $i < $assoc_args['count']; $i ++ ) {
 			$this->create_item();
 			$progress->tick();
 		}
@@ -238,7 +238,7 @@ class Relationship extends Types_Command {
 	 *
 	 * @since 1.0
 	 */
-	public function empty( $args, $assoc_args ) {
+	public function empty_items( $args, $assoc_args ) {
 		$defaults = array(
 			'cleanup' => true,
 		);

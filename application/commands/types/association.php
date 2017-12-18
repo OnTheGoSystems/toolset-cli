@@ -39,21 +39,21 @@ class Association extends Types_Command {
 			'relationship' => null,
 		);
 
-		$args = wp_parse_args( $assoc_args, $defaults );
+		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 
-		if ( ( $args['first'] == null ) || ( $args['second'] == null ) ) {
+		if ( ( $assoc_args['first'] == null ) || ( $assoc_args['second'] == null ) ) {
 			\WP_CLI::error( __( 'Please insert valid item IDs.', 'toolset-cli' ) );
 		}
 
 		$definition_repository = \Toolset_Relationship_Definition_Repository::get_instance();
-		$definition = $definition_repository->get_definition( $args['relationship'] );
+		$definition = $definition_repository->get_definition( $assoc_args['relationship'] );
 
-		if ( ! isset( $args['relationship'] ) || ( $definition == null ) ) {
+		if ( ! isset( $assoc_args['relationship'] ) || ( $definition == null ) ) {
 			\WP_CLI::error( __( 'Please insert a valid relationship.', 'toolset-cli' ) );
 		}
 
 		try {
-			$assocation = $definition->create_association( $args['first'], $args['second'] );
+			$assocation = $definition->create_association( $assoc_args['first'], $assoc_args['second'] );
 
 			if ( is_a( $assocation, 'Toolset_Result' ) && $assocation->is_error() ) {
 				\WP_CLI::error( __( 'Could not create association. ' . $assocation->get_message(), 'toolset-cli' ) );
@@ -95,12 +95,12 @@ class Association extends Types_Command {
 			'count-second' => 10,
 			'relationship' => null,
 		);
-		$args = wp_parse_args( $assoc_args, $defaults );
+		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 
 		$definition_repository = \Toolset_Relationship_Definition_Repository::get_instance();
-		$definition = $definition_repository->get_definition( $args['relationship'] );
+		$definition = $definition_repository->get_definition( $assoc_args['relationship'] );
 
-		if ( ! isset( $args['relationship'] ) || ( $definition == null ) ) {
+		if ( ! isset( $assoc_args['relationship'] ) || ( $definition == null ) ) {
 			\WP_CLI::error( __( 'Please insert a valid relationship.', 'toolset-cli' ) );
 		}
 
@@ -112,11 +112,11 @@ class Association extends Types_Command {
 			'exit_error' => true,
 		);
 
-		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating associations', 'toolset-cli' ), $args['count-first'] * $args['count-second'] );
-		for ( $i = 0; $i < $args['count-first']; $i ++ ) {
+		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating associations', 'toolset-cli' ), $assoc_args['count-first'] * $assoc_args['count-second'] );
+		for ( $i = 0; $i < $assoc_args['count-first']; $i ++ ) {
 			$first_item = \WP_CLI::runcommand( 'post create --porcelain --post_status=publish --post_type=' . $first_post_type . ' --post_title=' . \Toolset_CLI\get_random_string(), $wpcli_command_options );
 
-			for ( $j = 0; $j < $args['count-second']; $j ++ ) {
+			for ( $j = 0; $j < $assoc_args['count-second']; $j ++ ) {
 				$second_item = \WP_CLI::runcommand( 'post create --porcelain --post_status=publish --post_type=' . $second_post_type . ' --post_title=' . \Toolset_CLI\get_random_string(), $wpcli_command_options );
 				
 				try {
