@@ -23,12 +23,16 @@ class Toolset_CLI_Service {
 		),
 		'views' => array(
 			'archive'  => '\Toolset_CLI\Views\WPA',
-			'view' => '\Toolset_CLI\Views\View',
-			'template'   => '\Toolset_CLI\Views\CT'
+			'view'     => '\Toolset_CLI\Views\View',
+			'template' => '\Toolset_CLI\Views\CT'
+		),
+		'post'  => array(
+			'post' => '\Toolset_CLI\Post\Extra_Post_Commands'
 		)
 	);
 
 	private static $instance;
+	private static $non_plugin_commands = array( 'post' );
 
 	public static function get_instance() {
 		if ( null == self::$instance ) {
@@ -85,7 +89,7 @@ class Toolset_CLI_Service {
 	private function add_command( $command_name, $handler_class_name, $plugin_name ) {
 		\WP_CLI::add_command( $command_name, $handler_class_name, array(
 			'before_invoke' => function () use ( $plugin_name ) {
-				if ( ! $this->is_plugin_active( $plugin_name ) ) {
+				if ( ! in_array( $plugin_name, self::$non_plugin_commands ) && ! $this->is_plugin_active( $plugin_name ) ) {
 					\WP_CLI::error( sprintf( __( '%s is not active.', 'toolset-cli' ), ucfirst( $plugin_name ) ) );
 				}
 			},
@@ -118,10 +122,12 @@ class Toolset_CLI_Service {
 	private function is_m2m_active() {
 		if ( ! apply_filters( 'toolset_is_m2m_enabled', false ) ) {
 			\WP_CLI::error( __( 'm2m is not active.', 'toolset-cli' ) );
+
 			return false;
 		}
 		if ( ! defined( 'TOOLSET_VERSION' ) || version_compare( TOOLSET_VERSION, "2.5.3" ) < 0 ) {
 			\WP_CLI::error( __( 'Toolset Common version is old, please update to the latest one.', 'toolset-cli' ) );
+
 			return false;
 		}
 
