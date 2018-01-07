@@ -79,4 +79,49 @@ class Extra_Post_Commands extends \Post_Command {
 		}
 	}
 
+	/**
+	 * Assigns a parent post.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <id>
+	 * : The ID for the child post
+	 *
+	 * * <parent_id>
+	 * : The ID for the parent post
+	 *
+	 * ## EXAMPLES
+	 *
+	 *    wp post set_parent 1 2
+	 *
+	 * @subcommand set_parent
+	 * @synopsis <id> <parent_id>
+	 *
+	 * @since 1.0
+	 */
+	public function set_parent( $args, $assoc_args ) {
+		list( $id, $parent_id ) = $args;
+
+		if ( ! is_numeric( $id ) ) {
+			\WP_CLI::error( __( 'Please provide a child post id', 'toolset-cli' ) );
+		}
+
+		if ( ! is_numeric( $parent_id ) ) {
+			\WP_CLI::error( __( 'Please provide a parent post id', 'toolset-cli' ) );
+		}
+
+		$update_post = wp_update_post(
+			array(
+				'ID'          => $id,
+				'post_parent' => $parent_id
+			)
+		);
+
+		if ( ! ( $update_post instanceof \WP_Error ) ) {
+			\WP_CLI::success( __( 'Post updated successfully', 'toolset-cli' ) );
+		} else {
+			\WP_CLI::error( __( 'There was an error while assigning a parent to the post.', 'toolset-cli' ) );
+		}
+	}
+
 }
