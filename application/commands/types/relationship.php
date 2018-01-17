@@ -216,6 +216,10 @@ class Relationship extends Types_Command {
 				\WP_CLI::error( __( 'Please enter a valid cardinality: *..*, <number>..*, <number>..<number>.', 'toolset-cli' ) );
 			}
 		}
+
+		//We always set as distinct for now, this will parameterized when it is supported by the GUI.
+		$definition->is_distinct( true );
+
 		$definition_repository->persist_definition( $definition );
 
 		return $definition;
