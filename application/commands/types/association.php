@@ -58,8 +58,8 @@ class Association extends Types_Command {
 			if ( is_a( $assocation, 'Toolset_Result' ) && $assocation->is_error() ) {
 				\WP_CLI::error( __( 'Could not create association. ' . $assocation->get_message(), 'toolset-cli' ) );
 			}
-		} catch ( Exception $e ) {
-			\WP_CLI::error( __( 'Could not create association.', 'toolset-cli' ) );
+		} catch ( \Exception $e ) {
+			\WP_CLI::error( __( 'Could not create association. ' . $e->getMessage(), 'toolset-cli' ) );
 		}
 
 		\WP_CLI::success( __( 'Created association.', 'toolset-cli' ) );
@@ -125,8 +125,8 @@ class Association extends Types_Command {
 					if ( is_a( $assocation, 'Toolset_Result' ) && $assocation->is_error() ) {
 						\WP_CLI::warning( __( 'Could not create association. ' . $assocation->get_message(), 'toolset-cli' ) );
 					}
-				} catch ( Exception $e ) {
-					\WP_CLI::error( __( 'Could not create association.', 'toolset-cli' ) );
+				} catch ( \Exception $e ) {
+					\WP_CLI::error( __( 'Could not create association. ' . $e->getMessage(), 'toolset-cli' ) );
 				}
 
 				$progress->tick();
