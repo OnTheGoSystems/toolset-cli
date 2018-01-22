@@ -18,10 +18,10 @@ class Post_Type extends Types_Command {
 	 * : The format of the output. Can take values: table, csv, json, count, yaml. Default: table.
 	 *
 	 * [--domain=<domain>]
-	 * : The domain of the group. Can take values: all, types, builtin.
+	 * : The domain of the post types. Can take values: all, types, builtin.
 	 *
 	 * [--intermediary=<bool>]
-	 * : Whether to return intermediay post types. Default: false.
+	 * : Whether to return intermediary post types. Default: false.
 	 *
 	 * [--repeating_field_group=<bool>]
 	 * : Whether to return repeating field group post types. Default: false.
@@ -52,8 +52,8 @@ class Post_Type extends Types_Command {
 	/**
 	 * Get all registered post types.
 	 *
-	 * @param string $domain The domain of the group. Can take values: all, types, builtin.
-	 * @param bool $is_intermediary Whether to return intermediay post types. Default: false.
+	 * @param string $domain The domain of the post types. Can take values: all, types, builtin.
+	 * @param bool $is_intermediary Whether to return intermediary post types. Default: false.
 	 * @param bool $is_repeating_field_group Whether to return repeating field group post types. Default: false.
 	 *
 	 * @return array
@@ -106,13 +106,13 @@ class Post_Type extends Types_Command {
 	 * ## OPTIONS
 	 *
 	 * [--slug=<string>]
-	 * : The name of the group. Default: random string.
+	 * : The name of the post type. Default: random string.
 	 *
 	 * [--singular=<string>]
-	 * : The title of the group. Default: random string.
+	 * : The singular name of the post type. Default: random string.
 	 *
 	 * [--plural=<string>]
-	 * : The title of the group. Default: random string.
+	 * : The plural name of the post type. Default: random string.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -251,20 +251,9 @@ class Post_Type extends Types_Command {
 	 * @since 1.0
 	 */
 	public function delete( $args, $assoc_args ) {
-
 		list( $slug ) = $args;
-
-		if ( empty( $slug ) ) {
-			\WP_CLI::error( __( 'You must specify a post type slug.', 'toolset-cli' ) );
-		}
-
-		$delete_result = $this->delete_item( $slug );
-
-		if ( $delete_result ) {
-			\WP_CLI::success( __( 'Deleted post type.', 'toolset-cli' ) );
-		} else {
-			\WP_CLI::error( __( 'Post type does not exist.', 'toolset-cli' ) );
-		}
+		$this->delete_item( $slug );
+		\WP_CLI::success( __( 'Deleted post type.', 'toolset-cli' ) );
 	}
 
 	/**
@@ -274,11 +263,114 @@ class Post_Type extends Types_Command {
 	 */
 	protected function delete_item( $slug ) {
 		$post_type_repository = \Toolset_Post_Type_Repository::get_instance();
-		$post_type = $post_type_repository->get( $slug );
-		if ( empty ( $post_type ) ) {
-			return false;
-		}
+		$post_type = $this->get_post_type( $slug );
 		$post_type_repository->delete( $post_type );
-		return true;
+	}
+
+	/**
+	 * Updates a post type.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <slug>
+	 * : The slug of the post type.
+	 *
+	 * [--slug=<string>]
+	 * : The name of the post type.
+	 *
+	 * [--singular=<string>]
+	 * : The singular name of the post type.
+	 *
+	 * [--plural=<string>]
+	 * : The plural name of the post type.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *    wp types posttype update book --slug='ebook' --singular='Ebook' --plural='Ebooks'
+	 *
+	 * @subcommand update
+	 * @synopsis <slug> [--slug=<string>] [--singular=<string>] [--plural=<string>]
+	 *
+	 * @since 1.0
+	 */
+	public function update_item( $args, $assoc_args ) {
+		list( $slug ) = $args;
+
+		if ( empty( $slug ) ) {
+			\WP_CLI::error( __( 'You must specify a post type slug.', 'toolset-cli' ) );
+		}
+
+		$post_type_repository = \Toolset_Post_Type_Repository::get_instance();
+		$post_type = $post_type_repository->get_from_types( $slug );
+
+		if ( empty( $post_type ) ) {
+			\WP_CLI::error( __( 'Post type does not exist.', 'toolset-cli' ) );
+		}
+
+		if ( isset( $assoc_args['slug'] ) && ! empty ( $assoc_args['slug'] ) ) {
+			$post_type_repository->change_slug( $post_type, $assoc_args['slug'] );
+		}
+		if ( isset( $assoc_args['singular'] ) && ! empty ( $assoc_args['singular'] ) ) {
+			$post_type->set_label( \Toolset_Post_Type_Labels::SINGULAR_NAME, $assoc_args['singular'] );
+		}
+		if ( isset( $assoc_args['plural'] ) && ! empty ( $assoc_args['plural'] ) ) {
+			$post_type->set_label( \Toolset_Post_Type_Labels::NAME, $assoc_args['plural'] );
+		}
+
+		$post_type_repository->save( $post_type );
+
+		\WP_CLI::success( __( 'Updated post type.', 'toolset-cli' ) );
+	}
+
+	/**
+	 * Activates a post type.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <slug>
+	 * : The slug of the post type.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *    wp types posttype activate book
+	 *
+	 * @subcommand activate
+	 * @synopsis <slug>
+	 *
+	 * @since 1.0
+	 */
+	public function activate( $args, $assoc_args ) {
+		list( $slug ) = $args;
+		$post_type_repository = \Toolset_Post_Type_Repository::get_instance();
+		$post_type = $this->get_post_type( $slug, true );
+		$post_type->set_is_disabled( false );
+		$post_type_repository->save( $post_type );
+		\WP_CLI::success( __( 'Activated post type.', 'toolset-cli' ) );
+	}
+
+	/**
+	 * Deactivates a post type.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <slug>
+	 * : The slug of the post type.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *    wp types posttype deactivate book
+	 *
+	 * @subcommand deactivate
+	 * @synopsis <slug>
+	 *
+	 * @since 1.0
+	 */
+	public function deactivate( $args, $assoc_args ) {
+		list( $slug ) = $args;
+		$post_type_repository = \Toolset_Post_Type_Repository::get_instance();
+		$post_type = $this->get_post_type( $slug, true );
+		$post_type->set_is_disabled( true );
+		$post_type_repository->save( $post_type );
+		\WP_CLI::success( __( 'Deactivated post type.', 'toolset-cli' ) );
 	}
 }
