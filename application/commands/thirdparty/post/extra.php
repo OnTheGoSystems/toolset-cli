@@ -1,13 +1,13 @@
 <?php
 
-namespace Toolset_CLI\Post;
+namespace Toolset_CLI\Thirdparty\Post;
 
 /**
- * Views View commands.
+ * Extra post commands.
  *
- * @package Toolset_CLI\Views
+ * @package Toolset_CLI\Thirdparty\Post
  */
-class Extra_Post_Commands extends \Post_Command {
+class Extra extends \Post_Command {
 
 	/**
 	 * Sticks a post.

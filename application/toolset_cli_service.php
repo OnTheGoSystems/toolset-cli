@@ -22,13 +22,16 @@ class Toolset_CLI_Service {
 			'association' => '\Toolset_CLI\Types\Association',
 		),
 		'views' => array(
-			'archive'  => '\Toolset_CLI\Views\WPA',
-			'view'     => '\Toolset_CLI\Views\View',
-			'template' => '\Toolset_CLI\Views\CT'
+			'archive' => '\Toolset_CLI\Views\WPA',
+			'view' => '\Toolset_CLI\Views\View',
+			'template' => '\Toolset_CLI\Views\CT',
 		),
-		'post'  => array(
-			'post' => '\Toolset_CLI\Post\Extra_Post_Commands'
-		)
+		'post' => array(
+			'post' => 'Toolset_CLI\Thirdparty\Post\Extra',
+		),
+		'wpml' => array(
+			'translation' => 'Toolset_CLI\Thirdparty\WPML\Translation',
+		),
 	);
 
 	private static $instance;
@@ -108,6 +111,9 @@ class Toolset_CLI_Service {
 				break;
 			case 'views':
 				return defined( 'WPV_VERSION' );
+				break;
+			case 'wpml';
+				return ( apply_filters( 'toolset_is_wpml_active_and_configured', false ) );
 				break;
 		}
 
