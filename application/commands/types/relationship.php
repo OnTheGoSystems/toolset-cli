@@ -58,6 +58,7 @@ class Relationship extends Types_Command {
 				'first_post_type' => $definition->get_child_type()->get_types()[0],
 				'second_post_type' => $definition->get_parent_type()->get_types()[0],
 				'limits' => $first_limit . '..' . $second_limit,
+				'origin' => $definition->get_origin()->get_origin_keyword(),
 				'active' => $definition->is_active() ? __( 'Yes', 'toolset-cli' ) : __( 'No', 'toolset-cli' ),
 			);
 		}
@@ -78,6 +79,7 @@ class Relationship extends Types_Command {
 			'first_post_type',
 			'second_post_type',
 			'limits',
+			'origin',
 			'active',
 		);
 
