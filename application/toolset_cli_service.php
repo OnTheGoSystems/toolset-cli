@@ -32,6 +32,9 @@ class Toolset_CLI_Service {
 		'wpml' => array(
 			'translation' => 'Toolset_CLI\Thirdparty\WPML\Translation',
 		),
+		'csv' => array(
+			'csv' => 'Toolset_CLI\Thirdparty\CSV\Import',
+		),
 	);
 
 	private static $instance;
@@ -114,6 +117,8 @@ class Toolset_CLI_Service {
 				break;
 			case 'wpml';
 				return ( apply_filters( 'toolset_is_wpml_active_and_configured', false ) );
+			default:
+				return true;
 				break;
 		}
 
