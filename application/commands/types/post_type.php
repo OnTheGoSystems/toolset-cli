@@ -114,12 +114,15 @@ class Post_Type extends Types_Command {
 	 * [--plural=<string>]
 	 * : The plural name of the post type. Default: random string.
 	 *
+	 * [--show_in_rest=<bool>]
+	 * : Whethere show_in_rest option is enabled. Default: false.
+	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp types posttype create --slug='book' --singular='Book' --plural='Books'
+	 *    wp types posttype create --slug='book' --singular='Book' --plural='Books' --show_in_rest=true
 	 *
 	 * @subcommand create
-	 * @synopsis [--slug=<string>] [--singular=<string>] [--plural=<string>]
+	 * @synopsis [--slug=<string>] [--singular=<string>] [--plural=<string>] [--show_in_rest=<bool>]
 	 *
 	 * @since 1.0
 	 */
@@ -128,10 +131,15 @@ class Post_Type extends Types_Command {
 			'slug' => \Toolset_CLI\get_random_string(),
 			'plural' => '',
 			'singular' => '',
+			'show_in_rest' => 'false',
 		);
 		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 
-		$post_type = $this->create_item( $assoc_args['slug'], $assoc_args['plural'], $assoc_args['singular'] );
+		$post_type_options = array(
+			'show_in_rest' => $assoc_args['show_in_rest'],
+		);
+
+		$post_type = $this->create_item( $assoc_args['slug'], $assoc_args['plural'], $assoc_args['singular'], $post_type_options );
 
 		if ( ! empty ( $post_type ) ) {
 			\WP_CLI::success( __( 'Created post type.', 'toolset-cli' ) );
@@ -177,10 +185,11 @@ class Post_Type extends Types_Command {
 	 * @param string $slug The slug of the post type.
 	 * @param string $plural The plural name of the post type.
 	 * @param string $singular The singular name of the post type.
+	 * @param array $options The options of the post type.
 	 *
 	 * @return IToolset_Post_Type_From_Types
 	 */
-	protected function create_item( $slug = '', $plural = '', $singular = '' ) {
+	protected function create_item( $slug = '', $plural = '', $singular = '', $post_type_options = array() ) {
 		if ( empty ( $slug ) ) {
 			$slug = \Toolset_CLI\get_random_string();
 		}
@@ -196,6 +205,11 @@ class Post_Type extends Types_Command {
 		try {
 			$post_type_repository = \Toolset_Post_Type_Repository::get_instance();
 			$post_type = $post_type_repository->create( $slug, $plural, $singular );
+
+			if ( isset( $post_type_options['show_in_rest'] ) && $post_type_options['show_in_rest'] == 'true' ) {
+				$post_type->set_show_in_rest( true );
+			}
+
 			$post_type_repository->save( $post_type );
 
 			// @todo This is a workaround to flush rewrite rules, until toolsetcommon-329 is fixed
