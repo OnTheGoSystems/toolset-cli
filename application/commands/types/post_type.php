@@ -120,12 +120,15 @@ class Post_Type extends Types_Command {
 	 * [--show_in_rest=<bool>]
 	 * : Whethere show_in_rest option is enabled. Default: false.
 	 *
+	 * [--hierarchical=<bool>]
+	 * : Whethere hierarchical option is enabled. Default: false.
+	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp types posttype create --slug='book' --singular='Book' --plural='Books' --editor=block --show_in_rest=true
+	 *    wp types posttype create --slug='book' --singular='Book' --plural='Books' --editor=block --show_in_rest=true --hierarchical=true
 	 *
 	 * @subcommand create
-	 * @synopsis [--slug=<string>] [--singular=<string>] [--plural=<string>] [--editor=<string>] [--show_in_rest=<bool>]
+	 * @synopsis [--slug=<string>] [--singular=<string>] [--plural=<string>] [--editor=<string>] [--show_in_rest=<bool>] [--hierarchical=<bool>]
 	 *
 	 * @since 1.0
 	 */
@@ -136,12 +139,14 @@ class Post_Type extends Types_Command {
 			'singular' => '',
 			'editor' => 'classic',
 			'show_in_rest' => 'false',
+			'hierarchical' => 'false',
 		);
 		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 
 		$post_type_options = array(
 			'editor' => $assoc_args['editor'],
 			'show_in_rest' => $assoc_args['show_in_rest'],
+			'hierarchical' => $assoc_args['hierarchical'],
 		);
 
 		$post_type = $this->create_item( $assoc_args['slug'], $assoc_args['plural'], $assoc_args['singular'], $post_type_options );
@@ -213,6 +218,10 @@ class Post_Type extends Types_Command {
 
 			if ( isset( $post_type_options['show_in_rest'] ) && $post_type_options['show_in_rest'] == 'true' ) {
 				$post_type->set_show_in_rest( true );
+			}
+
+			if ( isset( $post_type_options['hierarchical'] ) && $post_type_options['hierarchical'] == 'true' ) {
+				$post_type->set_hierarchical( true );
 			}
 
 			if ( isset( $post_type_options['editor'] ) && $post_type_options['editor'] == 'block' ) {
