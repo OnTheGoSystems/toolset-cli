@@ -114,15 +114,18 @@ class Post_Type extends Types_Command {
 	 * [--plural=<string>]
 	 * : The plural name of the post type. Default: random string.
 	 *
+	 * [--editor=<string>]
+	 * : Which editor to use. Can take values: classic, block. Default: classic.
+	 *
 	 * [--show_in_rest=<bool>]
 	 * : Whethere show_in_rest option is enabled. Default: false.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp types posttype create --slug='book' --singular='Book' --plural='Books' --show_in_rest=true
+	 *    wp types posttype create --slug='book' --singular='Book' --plural='Books' --editor=block --show_in_rest=true
 	 *
 	 * @subcommand create
-	 * @synopsis [--slug=<string>] [--singular=<string>] [--plural=<string>] [--show_in_rest=<bool>]
+	 * @synopsis [--slug=<string>] [--singular=<string>] [--plural=<string>] [--editor=<string>] [--show_in_rest=<bool>]
 	 *
 	 * @since 1.0
 	 */
@@ -131,11 +134,13 @@ class Post_Type extends Types_Command {
 			'slug' => \Toolset_CLI\get_random_string(),
 			'plural' => '',
 			'singular' => '',
+			'editor' => 'classic',
 			'show_in_rest' => 'false',
 		);
 		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 
 		$post_type_options = array(
+			'editor' => $assoc_args['editor'],
 			'show_in_rest' => $assoc_args['show_in_rest'],
 		);
 
@@ -208,6 +213,10 @@ class Post_Type extends Types_Command {
 
 			if ( isset( $post_type_options['show_in_rest'] ) && $post_type_options['show_in_rest'] == 'true' ) {
 				$post_type->set_show_in_rest( true );
+			}
+
+			if ( isset( $post_type_options['editor'] ) && $post_type_options['editor'] == 'block' ) {
+				$post_type->use_block_editor();
 			}
 
 			$post_type_repository->save( $post_type );
