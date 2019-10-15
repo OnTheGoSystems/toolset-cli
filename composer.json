@@ -1,6 +1,6 @@
 {
   "name": "toolset/toolset-cli",
-  "type": "wp-cli-package",
+  "type": "wordpress-plugin",
   "description": "WP-CLI commands for Toolset plugins",
   "keywords": [
     "wp-cli",
