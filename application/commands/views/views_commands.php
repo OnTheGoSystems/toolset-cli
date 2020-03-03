@@ -1,12 +1,10 @@
 <?php
 
-namespace Toolset_CLI\Views;
+namespace OTGS\Toolset\CLI\Views;
 
-use Toolset_CLI\Toolset_Command;
+use OTGS\Toolset\CLI\Toolset_Command;
 
 use WPV_WordPress_Archive;
-use WPV_View;
-use WPV_Settings;
 
 abstract class Views_Commands extends Toolset_Command {
 
@@ -17,7 +15,7 @@ abstract class Views_Commands extends Toolset_Command {
 	 */
 	protected function touch_post() {
 		return wp_insert_post( array(
-			'post_title' => 'Draft CLI Post'
+			'post_title' => 'Draft CLI Post',
 		) );
 	}
 

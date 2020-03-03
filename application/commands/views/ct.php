@@ -1,6 +1,6 @@
 <?php
 
-namespace Toolset_CLI\Views;
+namespace OTGS\Toolset\CLI\Views;
 
 use WPV_Content_Template;
 use WPV_Settings;
@@ -31,19 +31,21 @@ class CT extends Views_Commands {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp views template create --title="Test Thingy" --content="some html and shortcodes" --assignment_group="singles" --assignment_slug="cest" --porcelain
+	 *    wp views template create --title="Test Thingy" --content="some html and shortcodes"
+	 * --assignment_group="singles" --assignment_slug="cest" --porcelain
 	 *
 	 * @subcommand create
-	 * @synopsis [--title=<string>] [--content=<string>] [--assignment_group=<string>] [--assignment_slug=<string>] [--porcelain]
+	 * @synopsis [--title=<string>] [--content=<string>] [--assignment_group=<string>] [--assignment_slug=<string>]
+	 *     [--porcelain]
 	 *
 	 * @since 1.1
 	 */
 	public function create( $args, $assoc_args ) {
 		$defaults = array(
-			'title'            => \Toolset_CLI\get_random_string(),
-			'content'          => 'Put your template here',
+			'title' => \OTGS\Toolset\CLI\get_random_string(),
+			'content' => 'Put your template here',
 			'assignment_group' => 'singles',
-			'assignment_slug'  => 'post'
+			'assignment_slug' => 'post',
 		);
 
 		$create_args = wp_parse_args( $assoc_args, $defaults );
@@ -65,11 +67,11 @@ class CT extends Views_Commands {
 			} else {
 				\WP_CLI::error( __( 'Could not create content template.', 'toolset-cli' ) );
 			}
-
 		} catch ( \Exception $e ) {
 			\WP_CLI::error( __( 'There was an error while creating new Views instance.', 'toolset-cli' ) );
 		}
 	}
+
 
 	/**
 	 * Duplicates an existing CT.
@@ -98,8 +100,8 @@ class CT extends Views_Commands {
 		list( $id ) = $args;
 
 		$defaults = array(
-			'title'     => \Toolset_CLI\get_random_string(),
-			'output_id' => false
+			'title' => \OTGS\Toolset\CLI\get_random_string(),
+			'output_id' => false,
 		);
 
 		$duplicate_args = wp_parse_args( $assoc_args, $defaults );
@@ -109,7 +111,7 @@ class CT extends Views_Commands {
 		}
 
 		try {
-			$ct           = WPV_Content_Template::get_instance( $id );
+			$ct = WPV_Content_Template::get_instance( $id );
 			$duplicate_ct = $ct->duplicate( $duplicate_args['title'], true );
 
 			if ( $duplicate_ct !== null && $duplicate_ct->id !== null ) {
@@ -117,11 +119,11 @@ class CT extends Views_Commands {
 			} else {
 				\WP_CLI::error( __( 'Could not duplicate content template.', 'toolset-cli' ) );
 			}
-
 		} catch ( \Exception $e ) {
 			\WP_CLI::error( __( 'There was an error while creating new CT instance.', 'toolset-cli' ) );
 		}
 	}
+
 
 	/**
 	 * Changes the Template content for an existing CT.
@@ -148,7 +150,7 @@ class CT extends Views_Commands {
 		list( $id ) = $args;
 
 		$defaults = array(
-			'content' => \Toolset_CLI\get_random_string()
+			'content' => \OTGS\Toolset\CLI\get_random_string(),
 		);
 
 		$content_args = wp_parse_args( $assoc_args, $defaults );
@@ -165,6 +167,7 @@ class CT extends Views_Commands {
 			\WP_CLI::error( __( 'Could not change CT content.', 'toolset-cli' ) );
 		}
 	}
+
 
 	/**
 	 * Binds posts to the specified CT
@@ -191,7 +194,7 @@ class CT extends Views_Commands {
 		list( $id ) = $args;
 
 		$defaults = array(
-			'posts_ids' => - 1
+			'posts_ids' => - 1,
 		);
 
 		$bind_args = wp_parse_args( $assoc_args, $defaults );
@@ -205,7 +208,7 @@ class CT extends Views_Commands {
 		}
 
 		try {
-			$ct     = WPV_Content_Template::get_instance( $id );
+			$ct = WPV_Content_Template::get_instance( $id );
 			$result = $ct->bind_posts( explode( ',', $bind_args['posts_ids'] ) );
 
 			if ( $result !== false ) {
@@ -213,11 +216,11 @@ class CT extends Views_Commands {
 			} else {
 				\WP_CLI::error( __( 'could not bind posts to content template.', 'toolset-cli' ) );
 			}
-
 		} catch ( \Exception $e ) {
 			\WP_CLI::error( __( 'There was an error while creating new CT instance.', 'toolset-cli' ) );
 		}
 	}
+
 
 	/**
 	 * Assign the CT to resource, CPT single, CPT archive, or taxonomies.
@@ -247,8 +250,8 @@ class CT extends Views_Commands {
 		list( $id ) = $args;
 
 		$defaults = array(
-			'assignment_slug'  => null,
-			'assignment_group' => null
+			'assignment_slug' => null,
+			'assignment_group' => null,
 		);
 
 		$assign_args = wp_parse_args( $assoc_args, $defaults );
@@ -267,6 +270,7 @@ class CT extends Views_Commands {
 
 	}
 
+
 	/**
 	 * Sets the assignment for a given CT
 	 *
@@ -283,6 +287,7 @@ class CT extends Views_Commands {
 		return update_option( WPV_Settings::OPTION_NAME, array_merge( $wpv_option, array( $this->format_assignment( $assignment_group, $assignment_slug ) => $ct_id ) ) );
 	}
 
+
 	/**
 	 * Adds necessary prefixes for all assignment types
 	 *
@@ -294,13 +299,13 @@ class CT extends Views_Commands {
 	protected function format_assignment( $assignment_group, $assignment_slug ) {
 		$prefix = null;
 		switch ( $assignment_group ) {
-			case "singles":
+			case 'singles':
 				$prefix = WPV_Settings::SINGLE_POST_TYPES_CT_ASSIGNMENT_PREFIX;
 				break;
-			case "archives":
+			case 'archives':
 				$prefix = WPV_Settings::CPT_ARCHIVES_CT_ASSIGNMENT_PREFIX;
 				break;
-			case "taxonomy":
+			case 'taxonomy':
 				$prefix = WPV_Settings::TAXONOMY_ARCHIVES_CT_ASSIGNMENT_PREFIX;
 				break;
 			default:
@@ -308,8 +313,9 @@ class CT extends Views_Commands {
 				break;
 		}
 
-		return sprintf( "%s%s", $prefix, $assignment_slug );
+		return sprintf( '%s%s', $prefix, $assignment_slug );
 	}
+
 
 	/**
 	 * Sets the content for a given CT
@@ -317,12 +323,12 @@ class CT extends Views_Commands {
 	 * @param int $ct_id
 	 * @param string $content
 	 *
-	 * @return int|WP_Error
+	 * @return int|\WP_Error
 	 */
 	protected function set_content( $ct_id, $content ) {
 		return wp_update_post( array(
-			'ID'           => $ct_id,
-			'post_content' => $content
+			'ID' => $ct_id,
+			'post_content' => $content,
 		) );
 	}
 }

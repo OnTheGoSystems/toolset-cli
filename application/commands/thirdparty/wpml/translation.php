@@ -1,13 +1,11 @@
 <?php
 
-namespace Toolset_CLI\Thirdparty\WPML;
+namespace OTGS\Toolset\CLI\Thirdparty\WPML;
 
-use \Toolset_CLI\Toolset_Command;
+use \OTGS\Toolset\CLI\Toolset_Command;
 
 /**
  * WPML commands.
- *
- * @package Toolset_CLI\Thirdparty\WPML
  */
 class Translation extends Toolset_Command {
 
@@ -42,8 +40,8 @@ class Translation extends Toolset_Command {
 		$defaults = array(
 			'post' => null,
 			'language' => null,
-			'title' => \Toolset_CLI\get_random_string(),
-			'content' => \Toolset_CLI\get_random_string(),
+			'title' => \OTGS\Toolset\CLI\get_random_string(),
+			'content' => \OTGS\Toolset\CLI\get_random_string(),
 		);
 		$list_args = wp_parse_args( $assoc_args, $defaults );
 

@@ -1,11 +1,9 @@
 <?php
 
-namespace Toolset_CLI\Types;
+namespace OTGS\Toolset\CLI\Types;
 
 /**
  * General Types commands.
- *
- * @package Toolset_CLI\Types
  */
 class Types extends Types_Command {
 

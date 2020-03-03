@@ -1,11 +1,9 @@
 <?php
 
-namespace Toolset_CLI\Types;
+namespace OTGS\Toolset\CLI\Types;
 
 /**
  * Relationship commands.
- *
- * @package Toolset_CLI\Types
  */
 class Relationship extends Types_Command {
 
@@ -175,11 +173,11 @@ class Relationship extends Types_Command {
 	 *                                                cardinality: example: *..*
 	 *                                              ]
 	 *
-	 * @return Toolset_Relationship_Definition
+	 * @return \Toolset_Relationship_Definition
 	 */
 	private function create_item( $slug = 'post-page', $first_post_type_slug = 'post', $second_post_type_slug = 'page', $extra = array() ) {
 		if ( empty ( $slug ) ) {
-			$slug = \Toolset_CLI\get_random_string();
+			$slug = \OTGS\Toolset\CLI\get_random_string();
 		}
 		if ( $this->get_post_type( $first_post_type_slug ) == null ) {
 			\WP_CLI::error( __( 'First post type does not exist.', 'toolset-cli' ) );

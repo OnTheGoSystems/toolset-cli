@@ -1,6 +1,6 @@
 <?php
 
-namespace Toolset_CLI;
+namespace OTGS\Toolset\CLI;
 
 /**
  * The base class for Toolset commands.

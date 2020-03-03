@@ -1,13 +1,11 @@
 <?php
 
-namespace Toolset_CLI\Views;
+namespace OTGS\Toolset\CLI\Views;
 
 use WPV_View;
 
 /**
  * Common methods shared by Views and WPA.
- *
- * @package Toolset_CLI\Views
  */
 abstract class Views_Common extends Views_Commands {
 

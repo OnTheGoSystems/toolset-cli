@@ -1,6 +1,6 @@
 <?php
 
-namespace Toolset_CLI;
+namespace OTGS\Toolset\CLI;
 
 /**
  * The service that registers Toolset CLI commands.
@@ -15,30 +15,33 @@ class Toolset_CLI_Service {
 	private static $commands = array(
 
 		'types' => array(
-			'types' => '\Toolset_CLI\Types\Types',
-			'posttype' => '\Toolset_CLI\Types\Post_Type',
-			'field group' => '\Toolset_CLI\Types\Field_Group',
-			'relationship' => '\Toolset_CLI\Types\Relationship',
-			'association' => '\Toolset_CLI\Types\Association',
+			'types' => '\OTGS\Toolset\CLI\Types\Types',
+			'posttype' => '\OTGS\Toolset\CLI\Types\Post_Type',
+			'field group' => '\OTGS\Toolset\CLI\Types\Field_Group',
+			'relationship' => '\OTGS\Toolset\CLI\Types\Relationship',
+			'association' => '\OTGS\Toolset\CLI\Types\Association',
 		),
 		'views' => array(
-			'archive' => '\Toolset_CLI\Views\WPA',
-			'view' => '\Toolset_CLI\Views\View',
-			'template' => '\Toolset_CLI\Views\CT',
+			'archive' => '\OTGS\Toolset\CLI\Views\WPA',
+			'view' => '\OTGS\Toolset\CLI\Views\View',
+			'template' => '\OTGS\Toolset\CLI\Views\CT',
 		),
 		'post' => array(
-			'post' => 'Toolset_CLI\Thirdparty\Post\Extra',
+			'post' => '\OTGS\Toolset\CLI\Thirdparty\Post\Extra',
 		),
 		'wpml' => array(
-			'translation' => 'Toolset_CLI\Thirdparty\WPML\Translation',
+			'translation' => '\OTGS\Toolset\CLI\Thirdparty\WPML\Translation',
 		),
 		'csv' => array(
-			'csv' => 'Toolset_CLI\Thirdparty\CSV\Import',
+			'csv' => '\OTGS\Toolset\CLI\Thirdparty\CSV\Import',
 		),
 	);
 
+	/** @var Toolset_CLI_Service */
 	private static $instance;
+
 	private static $non_plugin_commands = array( 'post' );
+
 
 	public static function get_instance() {
 		if ( null == self::$instance ) {
@@ -48,12 +51,6 @@ class Toolset_CLI_Service {
 		return self::$instance;
 	}
 
-	private function __clone() {
-	}
-
-	private function __construct() {
-	}
-
 
 	public static function initialize() {
 		$instance = self::get_instance();
@@ -61,13 +58,14 @@ class Toolset_CLI_Service {
 		$instance->register_commands();
 	}
 
+
 	private $commands_registered = false;
+
 
 	/**
 	 * Registers all available commands.
 	 */
 	private function register_commands() {
-
 
 		if ( $this->commands_registered ) {
 			return;
@@ -75,7 +73,7 @@ class Toolset_CLI_Service {
 
 		foreach ( self::$commands as $plugin_name => $commands ) {
 			foreach ( $commands as $command_name => $handler_class_name ) {
-				if ( $command_name != $plugin_name ) {
+				if ( $command_name !== $plugin_name ) {
 					$command_name = $plugin_name . ' ' . $command_name;
 				}
 				$this->add_command( $command_name, $handler_class_name, $plugin_name );
@@ -85,25 +83,34 @@ class Toolset_CLI_Service {
 		$this->commands_registered = true;
 	}
 
+
 	/**
 	 * Registers a specific command.
 	 *
 	 * @param string $command_name The name of the command.
 	 * @param string $handler_class_name The name of the handler class.
 	 * @param string $plugin_name The name of the plugin.
+	 *
+	 * @noinspection PhpDocMissingThrowsInspection
 	 */
 	private function add_command( $command_name, $handler_class_name, $plugin_name ) {
-		\WP_CLI::add_command( $command_name, $handler_class_name, array(
+		\WP_CLI::add_command( $command_name, $handler_class_name, [
 			'before_invoke' => function () use ( $plugin_name ) {
-				if ( ! in_array( $plugin_name, self::$non_plugin_commands ) && ! $this->is_plugin_active( $plugin_name ) ) {
+				if (
+					! in_array( $plugin_name, self::$non_plugin_commands, true )
+					&& ! $this->is_plugin_active( $plugin_name )
+				) {
 					\WP_CLI::error( sprintf( __( '%s is not active.', 'toolset-cli' ), ucfirst( $plugin_name ) ) );
 				}
 			},
-		) );
+		] );
 	}
+
 
 	/**
 	 * Checks if the plugin of the corresponding command is active.
+	 *
+	 * @param string $plugin Plugin slug.
 	 *
 	 * @return bool Whether the plugin is active.
 	 */
@@ -111,32 +118,31 @@ class Toolset_CLI_Service {
 		switch ( $plugin ) {
 			case 'types':
 				return ( apply_filters( 'types_is_active', false ) && $this->is_m2m_active() );
-				break;
 			case 'views':
 				return defined( 'WPV_VERSION' );
-				break;
-			case 'wpml';
+			case 'wpml':
 				return ( apply_filters( 'toolset_is_wpml_active_and_configured', false ) );
 			default:
 				return true;
-				break;
 		}
-
-		return false;
 	}
+
 
 	/**
 	 * Checks if m2m is active.
 	 *
 	 * @return bool Whether m2m is active.
+	 * @noinspection PhpDocMissingThrowsInspection
 	 */
 	private function is_m2m_active() {
 		if ( ! apply_filters( 'toolset_is_m2m_enabled', false ) ) {
+			/** @noinspection PhpUnhandledExceptionInspection */
 			\WP_CLI::error( __( 'm2m is not active.', 'toolset-cli' ) );
 
 			return false;
 		}
-		if ( ! defined( 'TOOLSET_VERSION' ) || version_compare( TOOLSET_VERSION, "2.5.3" ) < 0 ) {
+		if ( ! defined( 'TOOLSET_VERSION' ) || version_compare( TOOLSET_VERSION, '2.5.3' ) < 0 ) {
+			/** @noinspection PhpUnhandledExceptionInspection */
 			\WP_CLI::error( __( 'Toolset Common version is old, please update to the latest one.', 'toolset-cli' ) );
 
 			return false;

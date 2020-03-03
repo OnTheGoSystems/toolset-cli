@@ -1,11 +1,9 @@
 <?php
 
-namespace Toolset_CLI\Types;
+namespace OTGS\Toolset\CLI\Types;
 
 /**
  * Association commands.
- *
- * @package Toolset_CLI\Types
  */
 class Association extends Types_Command {
 
@@ -65,6 +63,7 @@ class Association extends Types_Command {
 		\WP_CLI::success( __( 'Created association.', 'toolset-cli' ) );
 	}
 
+
 	/**
 	 * Bulk generates associations. Posts involved in associations are created automatically.
 	 *
@@ -122,23 +121,31 @@ class Association extends Types_Command {
 			'exit_error' => true,
 		);
 
-		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating associations', 'toolset-cli' ), $assoc_args['count-first'] * $assoc_args['count-second'] );
+		$progress = \WP_CLI\Utils\make_progress_bar( __( 'Generating associations', 'toolset-cli' ), $assoc_args['count-first']
+			* $assoc_args['count-second'] );
 		for ( $i = 0; $i < $assoc_args['count-first']; $i ++ ) {
 
 			$first_item = $assoc_args['post'];
 
 			if ( is_null( $first_item ) ) {
-				$first_item = \WP_CLI::runcommand( 'post create --porcelain --post_status=publish --post_type=' . $first_post_type . ' --post_title=' . \Toolset_CLI\get_random_string(), $wpcli_command_options );
+				$first_item = \WP_CLI::runcommand( 'post create --porcelain --post_status=publish --post_type='
+					. $first_post_type
+					. ' --post_title='
+					. \OTGS\Toolset\CLI\get_random_string(), $wpcli_command_options );
 			}
 
 			for ( $j = 0; $j < $assoc_args['count-second']; $j ++ ) {
-				$second_item = \WP_CLI::runcommand( 'post create --porcelain --post_status=publish --post_type=' . $second_post_type . ' --post_title=' . \Toolset_CLI\get_random_string(), $wpcli_command_options );
+				$second_item = \WP_CLI::runcommand( 'post create --porcelain --post_status=publish --post_type='
+					. $second_post_type
+					. ' --post_title='
+					. \OTGS\Toolset\CLI\get_random_string(), $wpcli_command_options );
 
 				try {
 					$assocation = $definition->create_association( $first_item, $second_item );
 
 					if ( is_a( $assocation, 'Toolset_Result' ) && $assocation->is_error() ) {
-						\WP_CLI::warning( __( 'Could not create association. ' . $assocation->get_message(), 'toolset-cli' ) );
+						\WP_CLI::warning( __( 'Could not create association. '
+							. $assocation->get_message(), 'toolset-cli' ) );
 					}
 				} catch ( \Exception $e ) {
 					\WP_CLI::error( __( 'Could not create association. ' . $e->getMessage(), 'toolset-cli' ) );

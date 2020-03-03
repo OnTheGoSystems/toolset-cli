@@ -1,18 +1,17 @@
 <?php
 
-namespace Toolset_CLI\Views;
+namespace OTGS\Toolset\CLI\Views;
 
 use WPV_WordPress_Archive;
 use WPV_Settings;
 
 /**
  * Views WordPress Archives commands.
- *
- * @package Toolset_CLI\Views
  */
 class WPA extends Views_Common {
 
 	private static $allowed_purpose = array( 'all', 'parametric' );
+
 
 	/**
 	 * Creates a new WPA.
@@ -42,23 +41,25 @@ class WPA extends Views_Common {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *    wp views archive create --name="Test Thingy" --usage_type="standard" --usage="home-blog-page" --orderby="post_title" --order="ASC" --porcelain
+	 *    wp views archive create --name="Test Thingy" --usage_type="standard" --usage="home-blog-page"
+	 * --orderby="post_title" --order="ASC" --porcelain
 	 *
 	 * @subcommand create
-	 * @synopsis [--name=<string>] [--usage_type=<string>] [--usage=<string>] [--orderby=<string>] [--view_purpose=<string>] [--order=<string>] [--porcelain]
+	 * @synopsis [--name=<string>] [--usage_type=<string>] [--usage=<string>] [--orderby=<string>]
+	 *     [--view_purpose=<string>] [--order=<string>] [--porcelain]
 	 *
 	 * @since 1.1
 	 */
 	public function create( $args, $assoc_args ) {
 
 		$defaults = array(
-			'name'         => \Toolset_CLI\get_random_string(),
+			'name' => \OTGS\Toolset\CLI\get_random_string(),
 			'view_purpose' => 'all',
-			'usage_type'   => 'standard',
-			'usage'        => 'home-blog-page',
-			'orderby'      => 'post_date',
-			'order'        => 'DESC',
-			'output_id'    => false
+			'usage_type' => 'standard',
+			'usage' => 'home-blog-page',
+			'orderby' => 'post_date',
+			'order' => 'DESC',
+			'output_id' => false,
 		);
 
 		$create_args = wp_parse_args( $assoc_args, $defaults );
@@ -77,12 +78,12 @@ class WPA extends Views_Common {
 			} else {
 				\WP_CLI::error( __( 'Could not create WordPress Archive.', 'toolset-cli' ) );
 			}
-
 		} catch ( Exception $e ) {
 			\WP_CLI::error( __( 'There was an error while creating new Views instance.', 'toolset-cli' ) );
 		}
 
 	}
+
 
 	/**
 	 * Updates the View assignment by modifying the global wpv_options option, and appending the usage to it
@@ -108,6 +109,7 @@ class WPA extends Views_Common {
 		return update_option( WPV_Settings::OPTION_NAME, array_merge( $wpv_option, $formatted_usage ) );
 	}
 
+
 	/**
 	 * Formats the WPA usage by adding correct prefixes based on usage_type
 	 *
@@ -118,11 +120,11 @@ class WPA extends Views_Common {
 	 */
 	protected function format_usage( $usage, $usage_type ) {
 		switch ( $usage_type ) {
-			case"post_types":
+			case 'post_types':
 				return sprintf( 'view_cpt_%s', $usage );
-			case"standard":
+			case 'standard':
 				return sprintf( 'view_%s', $usage );
-			case"taxonomies":
+			case 'taxonomies':
 				return sprintf( 'view_taxonomy_loop_%s', $usage );
 			default:
 				\WP_CLI::error( sprintf( __( 'Unsupported view usage type %s', 'toolset-cli' ), ucfirst( $usage_type ) ) );

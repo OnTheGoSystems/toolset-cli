@@ -1,13 +1,11 @@
 <?php
 
-namespace Toolset_CLI\Views;
+namespace OTGS\Toolset\CLI\Views;
 
 use WPV_View;
 
 /**
  * Views View commands.
- *
- * @package Toolset_CLI\Views
  */
 class View extends Views_Common {
 
@@ -57,15 +55,15 @@ class View extends Views_Common {
 	public function create( $args, $assoc_args ) {
 
 		$defaults = array(
-			'name'             => \Toolset_CLI\get_random_string(),
-			'view_purpose'     => 'all',
-			'usage_type'       => 'post_types',
-			'usage'            => 'post',
-			'orderby'          => 'post_date',
-			'users_orderby'    => 'user_login',
+			'name' => \OTGS\Toolset\CLI\get_random_string(),
+			'view_purpose' => 'all',
+			'usage_type' => 'post_types',
+			'usage' => 'post',
+			'orderby' => 'post_date',
+			'users_orderby' => 'user_login',
 			'taxonomy_orderby' => 'name',
-			'order'            => 'DESC',
-			'output_id'        => false
+			'order' => 'DESC',
+			'output_id' => false,
 		);
 
 		$create_args = wp_parse_args( $assoc_args, $defaults );
@@ -77,9 +75,9 @@ class View extends Views_Common {
 		try {
 
 			$usages = $this->format_usage( $create_args['usage'], $create_args['usage_type'] );
-			$view   = WPV_View::create( WPV_View::get_unique_title( $create_args['name'] ), $create_args );
+			$view = WPV_View::create( WPV_View::get_unique_title( $create_args['name'] ), $create_args );
 
-			$updated_meta               = $this->cleanup_meta( array_merge( $create_args, $usages ) );
+			$updated_meta = $this->cleanup_meta( array_merge( $create_args, $usages ) );
 			$updated_meta['query_type'] = $this->query_type( $create_args['usage_type'] );
 
 			$view_meta = $view->get_postmeta( WPV_View::POSTMETA_VIEW_SETTINGS );
@@ -92,7 +90,6 @@ class View extends Views_Common {
 			} else {
 				\WP_CLI::error( __( 'Could not create the view.', 'toolset-cli' ) );
 			}
-
 		} catch ( \Exception $e ) {
 			\WP_CLI::error( __( 'There was an error while creating new Views instance.', 'toolset-cli' ) );
 		}
@@ -110,13 +107,13 @@ class View extends Views_Common {
 	protected function format_usage( $usage, $usage_type ) {
 		$usages = array();
 		switch ( $usage_type ) {
-			case"post_types":
+			case 'post_types':
 				$usages['post_type'] = array_values( explode( ',', $usage ) );
 				break;
-			case"users":
+			case 'users':
 				$usages['roles_type'] = array_values( explode( ',', $usage ) );
 				break;
-			case"taxonomies":
+			case 'taxonomies':
 				$usages['taxonomy_type'] = array_values( explode( ',', $usage ) );
 				break;
 			default:
@@ -138,13 +135,13 @@ class View extends Views_Common {
 		$query_type = array();
 
 		switch ( $usage_type ) {
-			case"post_types":
+			case 'post_types':
 				$query_type[] = 'posts';
 				break;
-			case"users":
+			case 'users':
 				$query_type[] = 'users';
 				break;
-			case"taxonomies":
+			case 'taxonomies':
 				$query_type[] = 'taxonomy';
 				break;
 			default:

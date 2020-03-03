@@ -1,11 +1,9 @@
 <?php
 
-namespace Toolset_CLI\Thirdparty\Post;
+namespace OTGS\Toolset\CLI\Thirdparty\Post;
 
 /**
  * Extra post commands.
- *
- * @package Toolset_CLI\Thirdparty\Post
  */
 class Extra extends \Post_Command {
 

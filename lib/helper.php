@@ -1,6 +1,6 @@
 <?php
 
-namespace Toolset_CLI;
+namespace OTGS\Toolset\CLI;
 
 /**
  * Generates a random string.

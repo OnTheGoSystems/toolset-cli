@@ -1,11 +1,9 @@
 <?php
 
-namespace Toolset_CLI\Types;
+namespace OTGS\Toolset\CLI\Types;
 
 /**
  * Post Type commands.
- *
- * @package Toolset_CLI\Types
  */
 class Post_Type extends Types_Command {
 
@@ -134,7 +132,7 @@ class Post_Type extends Types_Command {
 	 */
 	public function create( $args, $assoc_args ) {
 		$defaults = array(
-			'slug' => \Toolset_CLI\get_random_string(),
+			'slug' => \OTGS\Toolset\CLI\get_random_string(),
 			'plural' => '',
 			'singular' => '',
 			'editor' => 'classic',
@@ -201,7 +199,7 @@ class Post_Type extends Types_Command {
 	 */
 	protected function create_item( $slug = '', $plural = '', $singular = '', $post_type_options = array() ) {
 		if ( empty ( $slug ) ) {
-			$slug = \Toolset_CLI\get_random_string();
+			$slug = \OTGS\Toolset\CLI\get_random_string();
 		}
 
 		if ( empty ( $plural ) ) {

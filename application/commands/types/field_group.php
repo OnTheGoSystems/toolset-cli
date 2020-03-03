@@ -1,11 +1,9 @@
 <?php
 
-namespace Toolset_CLI\Types;
+namespace OTGS\Toolset\CLI\Types;
 
 /**
  * Field group commands.
- *
- * @package Toolset_CLI\Types
  */
 class Field_Group extends Types_Command {
 
@@ -82,7 +80,7 @@ class Field_Group extends Types_Command {
 						'id' => $item->get_id(),
 						'post_title' => $item->get_name(),
 						'post_status' => $item->is_active() ? __( 'active', 'toolset-cli' ) : __( 'inactive', 'toolset-cli' ),
-						'domain' => \Toolset_CLI\get_domain_from_post_type( $item->get_post_type() ),
+						'domain' => \OTGS\Toolset\CLI\get_domain_from_post_type( $item->get_post_type() ),
 					);
 				}
 			}
@@ -135,7 +133,7 @@ class Field_Group extends Types_Command {
 	 */
 	public function create( $args, $assoc_args ) {
 		$defaults = array(
-			'name' => \Toolset_CLI\get_random_string(),
+			'name' => \OTGS\Toolset\CLI\get_random_string(),
 			'title' => '',
 			'domain' => 'posts',
 			'status' => true,
@@ -198,7 +196,7 @@ class Field_Group extends Types_Command {
 	 */
 	protected function create_item( $domain = 'posts', $name = '', $title = '', $status = true ) {
 		if ( empty ( $name ) ) {
-			$name = \Toolset_CLI\get_random_string();
+			$name = \OTGS\Toolset\CLI\get_random_string();
 		}
 
 		if ( empty ( $title ) ) {

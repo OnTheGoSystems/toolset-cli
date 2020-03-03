@@ -1,13 +1,11 @@
 <?php
 
-namespace Toolset_CLI\Thirdparty\CSV;
+namespace OTGS\Toolset\CLI\Thirdparty\CSV;
 
-use \Toolset_CLI\Toolset_Command;
+use \OTGS\Toolset\CLI\Toolset_Command;
 
 /**
  * CSV Import commands.
- *
- * @package Toolset_CLI\Thirdparty\CSV
  */
 class Import extends Toolset_Command {
 
