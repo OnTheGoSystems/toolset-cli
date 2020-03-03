@@ -1,5 +1,6 @@
 {
   "name": "toolset/toolset-cli",
+  "license": "GPL-2.0-or-later",
   "type": "wordpress-plugin",
   "description": "WP-CLI commands for Toolset plugins",
   "keywords": [
@@ -16,6 +17,13 @@
   ],
   "require": {
     "php": ">=5.3"
+  },
+  "require-dev": {
+    "otgs/toolset-coding-standards": "dev-master",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+    "roave/security-advisories": "dev-master",
+    "phpcompatibility/php-compatibility": "^9.1",
+    "phpcompatibility/phpcompatibility-wp": "^2.0"
   },
   "autoload": {
     "classmap": [

@@ -12,54 +12,45 @@ class Toolset_CLI_Service {
 	/**
 	 * @var array Command names as keys, handler class as values. Commands are grouped per plugin.
 	 */
-	private static $commands = array(
-
-		'types' => array(
+	private static $commands = [
+		'types' => [
 			'types' => '\OTGS\Toolset\CLI\Types\Types',
 			'posttype' => '\OTGS\Toolset\CLI\Types\Post_Type',
 			'field group' => '\OTGS\Toolset\CLI\Types\Field_Group',
 			'relationship' => '\OTGS\Toolset\CLI\Types\Relationship',
 			'association' => '\OTGS\Toolset\CLI\Types\Association',
-		),
-		'views' => array(
+		],
+		'views' => [
 			'archive' => '\OTGS\Toolset\CLI\Views\WPA',
 			'view' => '\OTGS\Toolset\CLI\Views\View',
 			'template' => '\OTGS\Toolset\CLI\Views\CT',
-		),
-		'post' => array(
+		],
+		'post' => [
 			'post' => '\OTGS\Toolset\CLI\Thirdparty\Post\Extra',
-		),
-		'wpml' => array(
+		],
+		'wpml' => [
 			'translation' => '\OTGS\Toolset\CLI\Thirdparty\WPML\Translation',
-		),
-		'csv' => array(
+		],
+		'csv' => [
 			'csv' => '\OTGS\Toolset\CLI\Thirdparty\CSV\Import',
-		),
-	);
+		],
+	];
 
-	/** @var Toolset_CLI_Service */
-	private static $instance;
 
+	/** @var string[] */
 	private static $non_plugin_commands = array( 'post' );
 
 
-	public static function get_instance() {
-		if ( null == self::$instance ) {
-			self::$instance = new self();
-		}
-
-		return self::$instance;
-	}
-
-
-	public static function initialize() {
-		$instance = self::get_instance();
-
-		$instance->register_commands();
-	}
-
-
+	/** @var bool */
 	private $commands_registered = false;
+
+
+	/**
+	 * Setup the WP-CLI to work with this plugin.
+	 */
+	public function initialize() {
+		$this->register_commands();
+	}
 
 
 	/**
