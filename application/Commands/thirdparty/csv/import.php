@@ -2,12 +2,12 @@
 
 namespace OTGS\Toolset\CLI\Thirdparty\CSV;
 
-use \OTGS\Toolset\CLI\Toolset_Command;
+use OTGS\Toolset\CLI\Commands\ToolsetCommand;
 
 /**
  * CSV Import commands.
  */
-class Import extends Toolset_Command {
+class Import extends ToolsetCommand {
 
 	/**
 	 * @var string

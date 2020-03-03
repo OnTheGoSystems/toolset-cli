@@ -2,11 +2,11 @@
 
 namespace OTGS\Toolset\CLI\Views;
 
-use OTGS\Toolset\CLI\Toolset_Command;
+use OTGS\Toolset\CLI\Commands\ToolsetCommand;
 
 use WPV_WordPress_Archive;
 
-abstract class Views_Commands extends Toolset_Command {
+abstract class Views_Commands extends ToolsetCommand {
 
 	/**
 	 * Creates an empty Draft post to be used in creating Views

@@ -2,12 +2,12 @@
 
 namespace OTGS\Toolset\CLI\Thirdparty\WPML;
 
-use \OTGS\Toolset\CLI\Toolset_Command;
+use OTGS\Toolset\CLI\Commands\ToolsetCommand;
 
 /**
  * WPML commands.
  */
-class Translation extends Toolset_Command {
+class Translation extends ToolsetCommand {
 
 	/**
 	 * Creates a translation of a post.

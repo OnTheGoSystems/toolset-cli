@@ -11,5 +11,6 @@ License: GPLv2 or later
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once __DIR__ . '/vendor/autoload.php';
 
-	\OTGS\Toolset\CLI\Toolset_CLI_Service::initialize();
+	$bootstrap = new \OTGS\Toolset\CLI\Bootstrap();
+	$bootstrap->initialize();
 }

@@ -2,12 +2,12 @@
 
 namespace OTGS\Toolset\CLI\Types;
 
-use \OTGS\Toolset\CLI\Toolset_Command;
+use OTGS\Toolset\CLI\Commands\ToolsetCommand;
 
 /**
  * The base class for Types commands.
  */
-abstract class Types_Command extends Toolset_Command {
+abstract class Types_Command extends ToolsetCommand {
 
 	/**
 	 * Constructor

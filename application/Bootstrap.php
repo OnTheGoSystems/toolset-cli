@@ -7,12 +7,15 @@ namespace OTGS\Toolset\CLI;
  *
  * @since 1.0
  */
-class Toolset_CLI_Service {
+class Bootstrap {
 
 	/**
 	 * @var array Command names as keys, handler class as values. Commands are grouped per plugin.
 	 */
 	private static $commands = [
+		'toolset' => [
+			'relationships' => '\OTGS\Toolset\CLI\Commands\Toolset\Relationships',
+		],
 		'types' => [
 			'types' => '\OTGS\Toolset\CLI\Types\Types',
 			'posttype' => '\OTGS\Toolset\CLI\Types\Post_Type',
@@ -91,7 +94,11 @@ class Toolset_CLI_Service {
 					! in_array( $plugin_name, self::$non_plugin_commands, true )
 					&& ! $this->is_plugin_active( $plugin_name )
 				) {
-					\WP_CLI::error( sprintf( __( '%s is not active.', 'toolset-cli' ), ucfirst( $plugin_name ) ) );
+					\WP_CLI::error( sprintf(
+						/* translators: Plugin name. */
+						__( '%s is not active.', 'toolset-cli' ),
+						ucfirst( $plugin_name )
+					) );
 				}
 			},
 		] );
@@ -113,8 +120,10 @@ class Toolset_CLI_Service {
 				return defined( 'WPV_VERSION' );
 			case 'wpml':
 				return ( apply_filters( 'toolset_is_wpml_active_and_configured', false ) );
+			case 'toolset':
+				return $this->is_plugin_active( 'types' ) || $this->is_plugin_active( 'views' );
 			default:
-				return true;
+				return false;
 		}
 	}
 
