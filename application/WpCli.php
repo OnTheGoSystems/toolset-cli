@@ -31,4 +31,50 @@ class WpCli {
 	public function success( $message ) {
 		\WP_CLI::success( $message );
 	}
+
+
+	/**
+	 * @param string $message
+	 */
+	public function log( $message ) {
+		\WP_CLI::log( $message );
+	}
+
+
+	/**
+	 * @param string $message
+	 */
+	public function warning( $message ) {
+		\WP_CLI::warning( $message );
+	}
+
+
+	/**
+	 * @param string $string
+	 *
+	 * @return string
+	 */
+	public function green( $string ) {
+		return \WP_CLI::colorize( '%G' . $string . '%n' );
+	}
+
+
+	/**
+	 * @param string $string
+	 *
+	 * @return string
+	 */
+	public function red( $string ) {
+		return \WP_CLI::colorize( '%R' . $string . '%n' );
+	}
+
+
+	/**
+	 * @param string $string
+	 *
+	 * @return string
+	 */
+	public function white( $string ) {
+		return \WP_CLI::colorize( '%W' . $string . '%n' );
+	}
 }
