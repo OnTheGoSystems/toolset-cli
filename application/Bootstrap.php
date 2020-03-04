@@ -121,7 +121,7 @@ class Bootstrap {
 			case 'wpml':
 				return ( apply_filters( 'toolset_is_wpml_active_and_configured', false ) );
 			case 'toolset':
-				return $this->is_plugin_active( 'types' ) || $this->is_plugin_active( 'views' );
+				return apply_filters( 'types_is_active', false ) || $this->is_plugin_active( 'views' );
 			default:
 				return false;
 		}

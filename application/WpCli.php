@@ -19,7 +19,7 @@ class WpCli {
 	 *
 	 * @noinspection PhpDocMissingThrowsInspection
 	 */
-	public function error( $message, $exit = true ) {
+	public function error( $message, $exit = false ) {
 		/** @noinspection PhpUnhandledExceptionInspection */
 		\WP_CLI::error( $message, $exit );
 	}
