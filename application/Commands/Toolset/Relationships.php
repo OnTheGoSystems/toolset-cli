@@ -24,6 +24,14 @@ class Relationships extends ToolsetCommand {
 		self::STATUS_CLEAR,
 	];
 
+	const MIGRATION_STATE = 'state';
+
+	// STATUS
+	//
+	//
+	//
+	//
+
 
 	/**
 	 * Retrieves or manipulates the status of the relationship functionality in Toolset. USE WITH GREAT CAUTION.
@@ -67,6 +75,7 @@ class Relationships extends ToolsetCommand {
 	public function status( $args, $parameters ) {
 		if ( count( $parameters ) > 1 || count( $args ) > 0 ) {
 			$this->wp_cli()->error( __( 'Invalid subcommand syntax.', 'toolset-cli' ) );
+
 			return;
 		}
 		$subcommand = $this->get_subcommand( $parameters, self::STATUS_COMMANDS );
@@ -142,6 +151,17 @@ class Relationships extends ToolsetCommand {
 		}
 
 		return $database_layer_mode_manager->get();
+	}
+
+
+	/**
+	 * @return \OTGS\Toolset\Common\Relationships\DatabaseLayer\DatabaseLayerFactory|null
+	 */
+	private function get_database_layer_factory() {
+		/** @var \OTGS\Toolset\Common\Relationships\DatabaseLayer\DatabaseLayerFactory|null $database_layer_factory */
+		$database_layer_factory = $this->toolset_dic_make( '\OTGS\Toolset\Common\Relationships\DatabaseLayer\DatabaseLayerFactory' );
+
+		return $database_layer_factory;
 	}
 
 
@@ -256,12 +276,97 @@ class Relationships extends ToolsetCommand {
 			delete_option( \Toolset_Relationship_Controller::IS_M2M_ENABLED_OPTION );
 			delete_option( \OTGS\Toolset\Common\Relationships\DatabaseLayer\DatabaseLayerMode::OPTION_NAME );
 			\Toolset_Relationship_Controller::get_instance()->reset();
-		} catch (\Throwable $t) {
+		} catch ( \Throwable $t ) {
 			$this->wp_cli()->error( $t->getMessage() );
+
 			return;
 		}
 
 		$this->wp_cli()->success( __( 'Options deleted.', 'toolset-cli' ) );
+	}
+
+
+	// MIGRATE
+	//
+	//
+	//
+	//
+
+	/**
+	 * Perform a single database migration step based on the current migration state and return the next one.
+	 *
+	 * If no state is provided, the initial one will be generated.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--state=<state-value>]
+	 * : Serialized migration state.
+	 *
+	 * @param string[] $args
+	 * @param string[] $parameters
+	 *
+	 * @noinspection PhpUnusedParameterInspection
+	 */
+	public function migrate( $args, $parameters ) {
+		try {
+			$database_layer_factory = $this->get_database_layer_factory();
+			$migration_controller = $database_layer_factory->migration_controller();
+
+			if ( ! array_key_exists( self::MIGRATION_STATE, $parameters ) ) {
+				$this->wp_cli()->log( __( 'No migration state provided, returning the initial one.', 'toolset-cli' ) );
+				$next_state = $migration_controller->get_initial_state();
+			} else {
+				try {
+					$current_state = $migration_controller->unserialize_migration_state( $parameters[ self::MIGRATION_STATE ] );
+				} catch ( \Exception $e ) {
+					$this->wp_cli()->error( sprintf(
+						'%s: %s',
+						__( 'Unable to read the provided migration state.', 'toolset-cli' ),
+						$e->getMessage()
+					) );
+
+					return;
+				}
+
+				$this->wp_cli()->log( __( 'Performing the migration step as requested...', 'toolset-cli' ) );
+
+				try {
+					$next_state = $migration_controller->do_next_step( $current_state );
+				} catch ( \Exception $e ) {
+					$this->wp_cli()->error( sprintf(
+						'%s: "%s"',
+						__( 'An error has occurred while performing a migration step', 'toolset-cli' ),
+						$e->getMessage()
+					) );
+
+					return;
+				}
+
+				if ( $next_state->get_result()->is_success() ) {
+					$this->wp_cli()->success( sprintf(
+						'%s: "%s"',
+						__( 'The migration step has been completed successfully', 'toolset-cli' ),
+						$next_state->get_result()->get_message()
+					) );
+				} else {
+					$this->wp_cli()->error( sprintf(
+						'%s: "%s"',
+						__( 'There has been an error while performing the migration step', 'toolset-cli' ),
+						$next_state->get_result()->get_message()
+					) );
+				}
+			}
+
+			$this->wp_cli()->log( sprintf(
+				"%s:\n\n%s\n",
+				__( 'Next migration state', 'toolset-cli' ),
+				$next_state->serialize()
+			) );
+		} catch ( \RuntimeException $e ) {
+			$this->wp_cli()->error( $e->getMessage() );
+
+			return;
+		}
 	}
 
 }
