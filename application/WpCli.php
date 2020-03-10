@@ -11,6 +11,15 @@ namespace OTGS\Toolset\CLI;
  */
 class WpCli {
 
+
+	private $is_porcelain = false;
+
+
+	public function set_porcelain( $is_porcelain = true ) {
+		$this->is_porcelain = (bool) $is_porcelain;
+	}
+
+
 	/**
 	 * Display error message prefixed with "Error: " and exit script.
 	 *
@@ -20,6 +29,13 @@ class WpCli {
 	 * @noinspection PhpDocMissingThrowsInspection
 	 */
 	public function error( $message, $exit = false ) {
+		if ( $this->is_porcelain ) {
+			if ( $exit ) {
+				exit( 1 );
+			}
+
+			return;
+		}
 		/** @noinspection PhpUnhandledExceptionInspection */
 		\WP_CLI::error( $message, $exit );
 	}
@@ -29,14 +45,21 @@ class WpCli {
 	 * @param string $message
 	 */
 	public function success( $message ) {
+		if ( $this->is_porcelain ) {
+			return;
+		}
 		\WP_CLI::success( $message );
 	}
 
 
 	/**
 	 * @param string $message
+	 * @param bool $is_porcelain_output
 	 */
-	public function log( $message ) {
+	public function log( $message, $is_porcelain_output = false ) {
+		if ( $this->is_porcelain && ! $is_porcelain_output ) {
+			return;
+		}
 		\WP_CLI::log( $message );
 	}
 
@@ -45,6 +68,9 @@ class WpCli {
 	 * @param string $message
 	 */
 	public function warning( $message ) {
+		if ( $this->is_porcelain ) {
+			return;
+		}
 		\WP_CLI::warning( $message );
 	}
 

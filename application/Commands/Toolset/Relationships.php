@@ -302,12 +302,18 @@ class Relationships extends ToolsetCommand {
 	 * [--state=<state-value>]
 	 * : Serialized migration state.
 	 *
+	 * [--porcelain]
+	 * : If set, only the next state will be printed (or nothing if an error occurs).
+	 *
 	 * @param string[] $args
 	 * @param string[] $parameters
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public function migrate( $args, $parameters ) {
+		$is_porcelain_mode = array_key_exists( 'porcelain', $parameters );
+		$this->wp_cli()->set_porcelain( $is_porcelain_mode );
+
 		try {
 			$database_layer_factory = $this->get_database_layer_factory();
 			$migration_controller = $database_layer_factory->migration_controller();
@@ -362,6 +368,11 @@ class Relationships extends ToolsetCommand {
 				__( 'Next migration state', 'toolset-cli' ),
 				$next_state->serialize()
 			) );
+
+			if ( $is_porcelain_mode ) {
+				$this->wp_cli()->log( $next_state->serialize(), true );
+			}
+
 		} catch ( \RuntimeException $e ) {
 			$this->wp_cli()->error( $e->getMessage() );
 
