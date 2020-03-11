@@ -103,4 +103,15 @@ class WpCli {
 	public function white( $string ) {
 		return \WP_CLI::colorize( '%W' . $string . '%n' );
 	}
+
+
+	/**
+	 * @param $command
+	 * @param array $options
+	 *
+	 * @return mixed
+	 */
+	public function runcommand( $command, $options = [] ) {
+		return \WP_CLI::runcommand( $command, $options );
+	}
 }

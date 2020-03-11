@@ -26,11 +26,22 @@ class Relationships extends ToolsetCommand {
 
 	const MIGRATION_STATE = 'state';
 
-	// STATUS
-	//
-	//
-	//
-	//
+
+	/** @var \wpdb */
+	private $wpdb;
+
+
+	/**
+	 * Relationships constructor.
+	 *
+	 * @param \wpdb|null $wpdb_di
+	 */
+	public function __construct( \wpdb $wpdb_di = null ) {
+		parent::__construct();
+
+		global $wpdb;
+		$this->wpdb = $wpdb_di ?: $wpdb;
+	}
 
 
 	/**
@@ -286,12 +297,6 @@ class Relationships extends ToolsetCommand {
 	}
 
 
-	// MIGRATE
-	//
-	//
-	//
-	//
-
 	/**
 	 * Perform a single database migration step based on the current migration state and return the next one.
 	 *
@@ -305,18 +310,57 @@ class Relationships extends ToolsetCommand {
 	 * [--porcelain]
 	 * : If set, only the next state will be printed (or nothing if an error occurs).
 	 *
+	 * [--complete]
+	 * : Run the whole migration procedure, all steps from beginning to end.
+	 *
+	 * [--rollback]
+	 * : Provided the old association table still exists, bring it back and replace set the
+	 * database layer mode back to version1.
+	 *
 	 * @param string[] $args
 	 * @param string[] $parameters
+	 * @param bool $return
 	 *
+	 * @return \OTGS\Toolset\Common\Relationships\DatabaseLayer\Migration\MigrationStateInterface|null
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	public function migrate( $args, $parameters ) {
+	public function migrate( $args, $parameters, $return = false ) {
 		$is_porcelain_mode = array_key_exists( 'porcelain', $parameters );
 		$this->wp_cli()->set_porcelain( $is_porcelain_mode );
 
+		if ( array_key_exists( 'complete', $parameters ) ) {
+			$this->wp_cli()->log( __( 'Beginning the complete migration process...', 'toolset-cli' ) );
+			$next_state = $this->migrate( [], [], true );
+			while ( $next_state && $next_state->can_continue() ) {
+				$next_state = $this->migrate( [], [ 'state' => $next_state->serialize() ], true );
+			}
+			$is_success = ( $next_state && $next_state->get_result()->is_success() );
+			if ( $is_success ) {
+				$this->wp_cli()->success( __( 'The migration has been completed successfully.', 'toolset-cli' ) );
+			} else {
+				$this->wp_cli()->error( __( 'The migration has finished with an error.', 'toolset-cli' ) );
+			}
+
+			return null;
+		}
+
+		if ( array_key_exists( 'rollback', $parameters ) ) {
+			$final_associations_table = $this->wpdb->prefix . \OTGS\Toolset\Common\Relationships\DatabaseLayer\Version2\TableNames::ASSOCIATIONS;
+			$backup_associations_table = $this->wpdb->prefix . \OTGS\Toolset\Common\Relationships\DatabaseLayer\Version2\Migration\MigrationController::TEMPORARY_OLD_ASSOCIATION_TABLE_NAME;
+			$connected_elements_table = $this->wpdb->prefix . \OTGS\Toolset\Common\Relationships\DatabaseLayer\Version2\TableNames::CONNECTED_ELEMENTS;
+			$this->wpdb->query( "DROP TABLE IF EXISTS {$final_associations_table}" );
+			$this->wpdb->query( "DROP TABLE IF EXISTS {$connected_elements_table}" );
+			$this->wpdb->query( "RENAME TABLE {$backup_associations_table} TO {$final_associations_table}" );
+			$this->status( [], [ 'set-database-layer' => 'version1' ] );
+			$this->wp_cli()->log( __( 'Rollback finished.', 'toolset-cli' ) );
+			return null;
+		}
+
 		try {
 			$database_layer_factory = $this->get_database_layer_factory();
-			$migration_controller = $database_layer_factory->migration_controller();
+			$migration_controller = $database_layer_factory->migration_controller(
+				\OTGS\Toolset\Common\Relationships\DatabaseLayer\DatabaseLayerMode::VERSION_1
+			);
 
 			if ( ! array_key_exists( self::MIGRATION_STATE, $parameters ) ) {
 				$this->wp_cli()->log( __( 'No migration state provided, returning the initial one.', 'toolset-cli' ) );
@@ -331,7 +375,7 @@ class Relationships extends ToolsetCommand {
 						$e->getMessage()
 					) );
 
-					return;
+					return null;
 				}
 
 				$this->wp_cli()->log( __( 'Performing the migration step as requested...', 'toolset-cli' ) );
@@ -345,7 +389,7 @@ class Relationships extends ToolsetCommand {
 						$e->getMessage()
 					) );
 
-					return;
+					return null;
 				}
 
 				if ( $next_state->get_result()->is_success() ) {
@@ -363,21 +407,25 @@ class Relationships extends ToolsetCommand {
 				}
 			}
 
+			$next_state_serialized = $next_state->serialize();
 			$this->wp_cli()->log( sprintf(
 				"%s:\n\n%s\n",
 				__( 'Next migration state', 'toolset-cli' ),
-				$next_state->serialize()
+				$next_state_serialized
 			) );
 
 			if ( $is_porcelain_mode ) {
-				$this->wp_cli()->log( $next_state->serialize(), true );
+				$this->wp_cli()->log( $next_state_serialized, true );
 			}
 
+			if ( $return ) {
+				return $next_state;
+			}
 		} catch ( \RuntimeException $e ) {
 			$this->wp_cli()->error( $e->getMessage() );
-
-			return;
 		}
+
+		return null;
 	}
 
 }
