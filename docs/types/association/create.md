@@ -8,10 +8,10 @@ Creates an association between two items.
 : The relationship slug.
 
 [\--first=&lt;number&gt;]
-: ID of the first item
+: ID of the first item.
 
 [\--second=&lt;number&gt;]
-: ID of the second item
+: ID of the second item.
 
 ### EXAMPLES
 

@@ -5,7 +5,7 @@ Assign the CT to resource, CPT single, CPT archive, or taxonomies.
 ### OPTIONS
 
 &lt;id&gt;
-: The ID for the content template that will be duplicated
+: The ID for the content template that will be duplicated.
 
 [\--assignment_group=&lt;string&gt;]
 : The usage group type. Can take values: singles, archives, taxonomy.

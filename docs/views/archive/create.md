@@ -14,13 +14,13 @@ Creates a new WPA.
 : The usage group type. Can take values: standard, taxonomies, post_types.
 
 [\--orderby=&lt;string&gt;]
-: Field slug for WPA to be ordered by
+: Field slug for WPA to be ordered by.
 
 [\--order=&lt;string&gt;]
-: Order direction Can take values: DESC, ASC
+: Order direction Can take values: DESC, ASC.
 
 [\--porcelain]
-: prints the created WPA id
+: prints the created WPA id.
 
 ### EXAMPLES
 

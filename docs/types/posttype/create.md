@@ -17,10 +17,10 @@ Creates a new post type.
 : Which editor to use. Can take values: classic, block. Default: classic.
 
 [\--show_in_rest=&lt;bool&gt;]
-: Whethere show_in_rest option is enabled. Default: false.
+: Whether show_in_rest option is enabled. Default: false.
 
 [\--hierarchical=&lt;bool&gt;]
-: Whethere hierarchical option is enabled. Default: false.
+: Whether hierarchical option is enabled. Default: false.
 
 ### EXAMPLES
 

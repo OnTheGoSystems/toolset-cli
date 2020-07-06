@@ -30,14 +30,14 @@ class WPA extends Views_Common {
 	 * Can take values: standard, taxonomies, post_types.
 	 *
 	 * [--orderby=<string>]
-	 * : Field slug for WPA to be ordered by
+	 * : Field slug for WPA to be ordered by.
 	 *
 	 * [--order=<string>]
 	 * : Order direction
-	 * Can take values: DESC, ASC
+	 * Can take values: DESC, ASC.
 	 *
 	 * [--porcelain]
-	 * : prints the created WPA id
+	 * : prints the created WPA id.
 	 *
 	 * ## EXAMPLES
 	 *

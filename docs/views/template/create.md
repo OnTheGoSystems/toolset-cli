@@ -8,17 +8,17 @@ Creates a new Content Template.
 : The title of the CT. Default: random string.
 
 [\--content=&lt;string&gt;]
-: The Template content
+: The Template content.
 
 [\--assignment_group=&lt;string&gt;]
 : The usage group type. Can take values: singles, archives, taxonomy.
 
 [\--assignment_slug=&lt;string&gt;]
-: CPT or Taxonomy slug
+: Post type or taxonomy slug.
 
 
 [\--porcelain]
-: prints the created CT id when passed
+: Prints the created Content Template ID when passed.
 
 ### EXAMPLES
 

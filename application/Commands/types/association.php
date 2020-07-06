@@ -16,10 +16,10 @@ class Association extends Types_Command {
 	 * : The relationship slug.
 	 *
 	 * [--first=<number>]
-	 * : ID of the first item
+	 * : ID of the first item.
 	 *
 	 * [--second=<number>]
-	 * : ID of the second item
+	 * : ID of the second item.
 	 *
 	 * ## EXAMPLES
 	 *

@@ -1,14 +1,14 @@
 # wp views archive update_pagination
 
-Updates the pagination settings for a given View
+Updates the pagination settings for a given View.
 
 ### OPTIONS
 
 &lt;id&gt;
-: The post ID for View
+: The post ID of a View.
 
 [\--count=&lt;int&gt;]
-: Posts per page count. Default: default
+: Posts per page count. Default: default.
 
 [\--type=&lt;string&gt;]
 : Pagination type Can take values: paged, ajaxed, disabled.

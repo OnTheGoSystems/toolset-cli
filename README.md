@@ -39,7 +39,7 @@ Of course, when installed, the same information will be available via the `wp he
 ## Support and collaboration
 
 Please understand that this is _not_ an official part of the Toolset plugins,
-but rather an tool used internally within our company, which we decided to share
+but rather a tool used internally within our company, which we decided to share
 with our more advanced clients and Toolset users.
 
 Therefore, the usual guarantees do not apply here, and support will be provided 

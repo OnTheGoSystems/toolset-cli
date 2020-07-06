@@ -16,6 +16,6 @@ If no state is provided, the initial one will be generated.
 : Run the whole migration procedure, all steps from beginning to end.
 
 [\--rollback]
-: Provided the old association table still exists, bring it back and replace set the database layer mode back to version1.
+: Provided the old association table still exists, bring it back and set the database layer mode back to `version1`.
 
 
