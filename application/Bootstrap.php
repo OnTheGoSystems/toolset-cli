@@ -122,6 +122,8 @@ class Bootstrap {
 				return ( apply_filters( 'toolset_is_wpml_active_and_configured', false ) );
 			case 'toolset':
 				return apply_filters( 'types_is_active', false ) || $this->is_plugin_active( 'views' );
+			case 'csv':
+				return true;
 			default:
 				return false;
 		}
