@@ -1,22 +1,25 @@
 {
   "name": "toolset/toolset-cli",
   "license": "GPL-2.0-or-later",
-  "type": "wordpress-plugin",
+  "type": "wp-cli-package",
   "description": "WP-CLI commands for Toolset plugins",
   "keywords": [
     "wp-cli",
     "toolset",
-    "wordpress"
+    "wordpress",
+    "otgs",
+    "onthegosystems"
   ],
-  "homepage": "https://git.onthegosystems.com/toolset/toolset-cli/",
+  "homepage": "https://github.com/OnTheGoSystems/toolset-cli",
   "authors": [
     {
       "name": "OnTheGoSystems",
-      "email": "hello@onthegosystems.com"
+      "email": "hello@onthegosystems.com",
+      "homepage": "https://onthegosystems.com"
     }
   ],
   "require": {
-    "php": ">=5.3"
+    "php": ">=7.0"
   },
   "require-dev": {
     "otgs/toolset-coding-standards": "dev-master",
