@@ -13,7 +13,9 @@ If no state is provided, the initial one will be generated.
 : If set, only the next state will be printed (or nothing if an error occurs).
 
 [\--complete]
-: Run the whole migration procedure, all steps from beginning to end.
+: Run the whole migration procedure, all steps from beginning to end. If combined with the --state argument,
+the migration will attempt to resume from the given state and continue until the end.
+
 
 [\--rollback]
 : Provided the old association table still exists, bring it back and set the database layer mode back to `version1`.

@@ -311,7 +311,8 @@ class Relationships extends ToolsetCommand {
 	 * : If set, only the next state will be printed (or nothing if an error occurs).
 	 *
 	 * [--complete]
-	 * : Run the whole migration procedure, all steps from beginning to end.
+	 * : Run the whole migration procedure, all steps from beginning to end. If combined with the --state argument,
+	 * the migration will attempt to resume from the given state and continue until the end.
 	 *
 	 * [--rollback]
 	 * : Provided the old association table still exists, bring it back and set the
@@ -330,7 +331,17 @@ class Relationships extends ToolsetCommand {
 
 		if ( array_key_exists( 'complete', $parameters ) ) {
 			$this->wp_cli()->log( __( 'Beginning the complete migration process...', 'toolset-cli' ) );
-			$next_state = $this->migrate( [], [], true );
+			if ( array_key_exists( self::MIGRATION_STATE, $parameters ) ) {
+				// Try to resume via provided state parameter.
+				$database_layer_factory = $this->get_database_layer_factory();
+				$migration_controller = $database_layer_factory->migration_controller(
+					\OTGS\Toolset\Common\Relationships\DatabaseLayer\DatabaseLayerMode::VERSION_1
+				);
+				$next_state = $migration_controller->unserialize_migration_state( $parameters[ self::MIGRATION_STATE ] );
+			} else {
+				// Start the migration from the beginning.
+				$next_state = $this->migrate( [], [], true );
+			}
 			while ( $next_state && $next_state->can_continue() ) {
 				$next_state = $this->migrate( [], [ 'state' => $next_state->serialize() ], true );
 			}
