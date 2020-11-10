@@ -15,14 +15,13 @@ abstract class Views_Common extends Views_Commands {
 	 * ## OPTIONS
 	 *
 	 * <id>
-	 * : The post ID for View
+	 * : The post ID of a View.
 	 *
 	 * [--count=<int>]
-	 * : Posts per page count. Default: default
+	 * : Posts per page count. Default: default.
 	 *
 	 * [--type=<string>]
-	 * : Pagination type
-	 * Can take values: paged, ajaxed, disabled.
+	 * : Pagination type, can take the following values: paged, ajaxed, disabled.
 	 *
 	 *
 	 * ## EXAMPLES
@@ -77,15 +76,15 @@ abstract class Views_Common extends Views_Commands {
 	}
 
 	/**
-	 * Adds a field to the end of View loop html
+	 * Adds a field to the end of View loop HTML.
 	 *
 	 * ## OPTIONS
 	 *
 	 * <id>
-	 * : The post ID for View
+	 * : The post ID for View.
 	 *
 	 * [--field=<string>]
-	 * : Field shortcode
+	 * : Field shortcode.
 	 *
 	 *
 	 * ## EXAMPLES

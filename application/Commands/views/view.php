@@ -28,20 +28,20 @@ class View extends Views_Common {
 	 * Can take values: post_types, users, taxonomies.
 	 *
 	 * [--orderby=<string>]
-	 * : Field slug for Posts View to be ordered by
+	 * : Field slug for Posts View to be ordered by.
 	 *
 	 * [--users_orderby=<string>]
-	 * : User field slug for Users View to be ordered by
+	 * : User field slug for Users View to be ordered by.
 	 *
 	 * [--taxonomy_orderby=<string>]
-	 * : Taxonomy Field slug for Taxonomy View to be ordered by
+	 * : Taxonomy Field slug for Taxonomy View to be ordered by.
 	 *
 	 * [--order=<string>]
 	 * : Order direction
-	 * Can take values: DESC, ASC
+	 * Can take values: DESC, ASC.
 	 *
 	 * [--porcelain]
-	 * : prints the created WPA id
+	 * : prints the created View ID.
 	 *
 	 * ## EXAMPLES
 	 *

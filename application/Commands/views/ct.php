@@ -16,18 +16,17 @@ class CT extends Views_Commands {
 	 * : The title of the CT. Default: random string.
 	 *
 	 * [--content=<string>]
-	 * : The Template content
+	 * : The Template content.
 	 *
 	 * [--assignment_group=<string>]
 	 * : The usage group type.
 	 * Can take values: singles, archives, taxonomy.
 	 *
 	 * [--assignment_slug=<string>]
-	 * : CPT or Taxonomy slug
-	 *
+	 * : Post type or taxonomy slug.
 	 *
 	 * [--porcelain]
-	 * : prints the created CT id when passed
+	 * : prints the created Content Template ID when passed
 	 *
 	 * ## EXAMPLES
 	 *
@@ -74,18 +73,18 @@ class CT extends Views_Commands {
 
 
 	/**
-	 * Duplicates an existing CT.
+	 * Duplicates an existing Content Template.
 	 *
 	 * ## OPTIONS
 	 *
 	 * <id>
-	 * : The ID for the content template that will be duplicated
+	 * : The ID for the Content Template that will be duplicated.
 	 *
 	 * [--title=<string>]
-	 * : The title for the new CT
+	 * : The title for the new Content Template.
 	 *
 	 * [--output_id]
-	 * : prints the duplicated CT id
+	 * : prints the duplicated Content Template ID.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -131,10 +130,10 @@ class CT extends Views_Commands {
 	 * ## OPTIONS
 	 *
 	 * <id>
-	 * : The ID for the content template that will be duplicated
+	 * : The ID for the content template that will be duplicated.
 	 *
 	 * [--content=<string>]
-	 * : The new template content
+	 * : The new template content.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -170,15 +169,15 @@ class CT extends Views_Commands {
 
 
 	/**
-	 * Binds posts to the specified CT
+	 * Binds posts to the specified CT.
 	 *
 	 * ## OPTIONS
 	 *
 	 * <id>
-	 * : The ID for the content template that will be duplicated
+	 * : The ID for the content template that will be duplicated.
 	 *
 	 * [--posts_ids=<string>]
-	 * : Comma seperated posts ids to be binded to the CT
+	 * : Comma seperated posts ids to be bound to the CT.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -228,7 +227,7 @@ class CT extends Views_Commands {
 	 * ## OPTIONS
 	 *
 	 * <id>
-	 * : The ID for the content template that will be duplicated
+	 * : The ID for the content template that will be duplicated.
 	 *
 	 * [--assignment_group=<string>]
 	 * : The usage group type.

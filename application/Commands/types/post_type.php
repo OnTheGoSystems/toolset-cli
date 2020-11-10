@@ -116,10 +116,10 @@ class Post_Type extends Types_Command {
 	 * : Which editor to use. Can take values: classic, block. Default: classic.
 	 *
 	 * [--show_in_rest=<bool>]
-	 * : Whethere show_in_rest option is enabled. Default: false.
+	 * : Whether show_in_rest option is enabled. Default: false.
 	 *
 	 * [--hierarchical=<bool>]
-	 * : Whethere hierarchical option is enabled. Default: false.
+	 * : Whether hierarchical option is enabled. Default: false.
 	 *
 	 * ## EXAMPLES
 	 *
