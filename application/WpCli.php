@@ -114,4 +114,9 @@ class WpCli {
 	public function runcommand( $command, $options = [] ) {
 		return \WP_CLI::runcommand( $command, $options );
 	}
+
+
+	public function confirm( $question, $parameters = [] ) {
+		return \WP_CLI::confirm( $question, $parameters );
+	}
 }
