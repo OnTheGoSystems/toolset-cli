@@ -7,7 +7,7 @@ use OTGS\Toolset\CLI\Commands\ToolsetCommand;
 /**
  * The base class for Types commands.
  */
-abstract class Types_Command extends ToolsetCommand {
+abstract class TypesCommand extends ToolsetCommand {
 
 	/**
 	 * Constructor

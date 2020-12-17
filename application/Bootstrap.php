@@ -2,6 +2,21 @@
 
 namespace OTGS\Toolset\CLI;
 
+use OTGS\Toolset\CLI\Types\Field;
+use OTGS\Toolset\CLI\Thirdparty\CSV\Import;
+use OTGS\Toolset\CLI\Thirdparty\WPML\Translation;
+use OTGS\Toolset\CLI\Thirdparty\Post\Extra;
+use OTGS\Toolset\CLI\Views\CT;
+use OTGS\Toolset\CLI\Views\View;
+use OTGS\Toolset\CLI\Views\WPA;
+use OTGS\Toolset\CLI\Types\Association;
+use OTGS\Toolset\CLI\Types\Relationship;
+use OTGS\Toolset\CLI\Types\FieldGroup;
+use OTGS\Toolset\CLI\Types\PostType;
+use OTGS\Toolset\CLI\Types\Types;
+use OTGS\Toolset\CLI\Commands\Toolset\Relationships;
+use WP_CLI;
+
 /**
  * The service that registers Toolset CLI commands.
  *
@@ -14,28 +29,29 @@ class Bootstrap {
 	 */
 	private static $commands = [
 		'toolset' => [
-			'relationships' => '\OTGS\Toolset\CLI\Commands\Toolset\Relationships',
+			'relationships' => Relationships::class,
 		],
 		'types' => [
-			'types' => '\OTGS\Toolset\CLI\Types\Types',
-			'posttype' => '\OTGS\Toolset\CLI\Types\Post_Type',
-			'field group' => '\OTGS\Toolset\CLI\Types\Field_Group',
-			'relationship' => '\OTGS\Toolset\CLI\Types\Relationship',
-			'association' => '\OTGS\Toolset\CLI\Types\Association',
+			'types' => Types::class,
+			'posttype' => PostType::class,
+			'field' => Field::class,
+			'field group' => FieldGroup::class,
+			'relationship' => Relationship::class,
+			'association' => Association::class,
 		],
 		'views' => [
-			'archive' => '\OTGS\Toolset\CLI\Views\WPA',
-			'view' => '\OTGS\Toolset\CLI\Views\View',
-			'template' => '\OTGS\Toolset\CLI\Views\CT',
+			'archive' => WPA::class,
+			'view' => View::class,
+			'template' => CT::class,
 		],
 		'post' => [
-			'post' => '\OTGS\Toolset\CLI\Thirdparty\Post\Extra',
+			'post' => Extra::class,
 		],
 		'wpml' => [
-			'translation' => '\OTGS\Toolset\CLI\Thirdparty\WPML\Translation',
+			'translation' => Translation::class,
 		],
 		'csv' => [
-			'csv' => '\OTGS\Toolset\CLI\Thirdparty\CSV\Import',
+			'csv' => Import::class,
 		],
 	];
 
@@ -88,13 +104,13 @@ class Bootstrap {
 	 * @noinspection PhpDocMissingThrowsInspection
 	 */
 	private function add_command( $command_name, $handler_class_name, $plugin_name ) {
-		\WP_CLI::add_command( $command_name, $handler_class_name, [
+		WP_CLI::add_command( $command_name, $handler_class_name, [
 			'before_invoke' => function () use ( $plugin_name ) {
 				if (
 					! in_array( $plugin_name, self::$non_plugin_commands, true )
 					&& ! $this->is_plugin_active( $plugin_name )
 				) {
-					\WP_CLI::error( sprintf(
+					WP_CLI::error( sprintf(
 						/* translators: Plugin name. */
 						__( '%s is not active.', 'toolset-cli' ),
 						ucfirst( $plugin_name )
@@ -139,13 +155,13 @@ class Bootstrap {
 	private function is_m2m_active() {
 		if ( ! apply_filters( 'toolset_is_m2m_enabled', false ) ) {
 			/** @noinspection PhpUnhandledExceptionInspection */
-			\WP_CLI::error( __( 'm2m is not active.', 'toolset-cli' ) );
+			WP_CLI::error( __( 'm2m is not active.', 'toolset-cli' ) );
 
 			return false;
 		}
 		if ( ! defined( 'TOOLSET_VERSION' ) || version_compare( TOOLSET_VERSION, '2.5.3' ) < 0 ) {
 			/** @noinspection PhpUnhandledExceptionInspection */
-			\WP_CLI::error( __( 'Toolset Common version is old, please update to the latest one.', 'toolset-cli' ) );
+			WP_CLI::error( __( 'Toolset Common version is old, please update to the latest one.', 'toolset-cli' ) );
 
 			return false;
 		}

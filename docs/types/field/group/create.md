@@ -16,6 +16,9 @@ Creates a new field group.
 [\--status=&lt;bool&gt;]
 : The status of the group.
 
+[\--description=&lt;string&gt;]
+: Field group description.
+
 ### EXAMPLES
 
    wp types field group create --name=my-group --title='My Group' --domain=terms

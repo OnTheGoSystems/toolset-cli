@@ -5,7 +5,7 @@ namespace OTGS\Toolset\CLI\Types;
 /**
  * General Types commands.
  */
-class Types extends Types_Command {
+class Types extends TypesCommand {
 
 	/**
 	 * Imports a Types zip file.

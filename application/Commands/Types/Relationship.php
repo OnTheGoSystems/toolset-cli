@@ -5,7 +5,7 @@ namespace OTGS\Toolset\CLI\Types;
 /**
  * Relationship commands.
  */
-class Relationship extends Types_Command {
+class Relationship extends TypesCommand {
 
 	/**
 	 * Displays a list of relationships.

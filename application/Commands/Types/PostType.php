@@ -5,7 +5,7 @@ namespace OTGS\Toolset\CLI\Types;
 /**
  * Post Type commands.
  */
-class Post_Type extends Types_Command {
+class PostType extends TypesCommand {
 
 	/**
 	 * Displays a list of post types.

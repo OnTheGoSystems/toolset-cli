@@ -5,7 +5,7 @@ namespace OTGS\Toolset\CLI\Types;
 /**
  * Association commands.
  */
-class Association extends Types_Command {
+class Association extends TypesCommand {
 
 	/**
 	 * Creates an association between two items.
