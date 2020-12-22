@@ -10,10 +10,10 @@ WP-CLI commands for Toolset plugins.
 
 ## Installation
 
-1. Clone this repository in `/wp-content/plugins/` directory.
+1. Clone this repository in the plugin directory (`wp-content/plugins/`) of your WordPress site.
    ```bash
    cd wp-content/plugins
-   git clone ... toolset-cli
+   git clone https://github.com/OnTheGoSystems/toolset-cli.git toolset-cli
    ```
 2. Install composer dependencies.
    ```bash
