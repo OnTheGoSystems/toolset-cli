@@ -27,6 +27,7 @@ class Bootstrap {
 			'archive' => '\OTGS\Toolset\CLI\Views\WPA',
 			'view' => '\OTGS\Toolset\CLI\Views\View',
 			'template' => '\OTGS\Toolset\CLI\Views\CT',
+			'export' => '\OTGS\Toolset\CLI\Views\Export',
 		],
 		'post' => [
 			'post' => '\OTGS\Toolset\CLI\Thirdparty\Post\Extra',
