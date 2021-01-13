@@ -16,6 +16,7 @@ use OTGS\Toolset\CLI\Types\PostType;
 use OTGS\Toolset\CLI\Types\Types;
 use OTGS\Toolset\CLI\Commands\Toolset\Relationships;
 use WP_CLI;
+use OTGS\Toolset\CLI\Views\Export;
 
 /**
  * The service that registers Toolset CLI commands.
@@ -43,6 +44,8 @@ class Bootstrap {
 			'archive' => WPA::class,
 			'view' => View::class,
 			'template' => CT::class,
+			'export' => Export::class,
+			'import' => Views\Import::class,
 		],
 		'post' => [
 			'post' => Extra::class,
