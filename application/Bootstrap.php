@@ -15,6 +15,7 @@ use OTGS\Toolset\CLI\Types\FieldGroup;
 use OTGS\Toolset\CLI\Types\PostType;
 use OTGS\Toolset\CLI\Types\Types;
 use OTGS\Toolset\CLI\Commands\Toolset\Relationships;
+use OTGS\Toolset\CLI\Layouts\LayoutsExport;
 use WP_CLI;
 use OTGS\Toolset\CLI\Views\Export;
 
@@ -46,6 +47,9 @@ class Bootstrap {
 			'template' => CT::class,
 			'export' => Export::class,
 			'import' => Views\Import::class,
+		],
+		'layouts' => [
+			'export' => LayoutsExport::class,
 		],
 		'post' => [
 			'post' => Extra::class,
@@ -141,6 +145,8 @@ class Bootstrap {
 				return ( apply_filters( 'toolset_is_wpml_active_and_configured', false ) );
 			case 'toolset':
 				return apply_filters( 'types_is_active', false ) || $this->is_plugin_active( 'views' );
+			case 'layouts':
+				return true ; // FIXME: do we need a real check here?
 			case 'csv':
 				return true;
 			default:
