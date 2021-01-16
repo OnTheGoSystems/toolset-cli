@@ -15,6 +15,7 @@ use OTGS\Toolset\CLI\Types\FieldGroup;
 use OTGS\Toolset\CLI\Types\PostType;
 use OTGS\Toolset\CLI\Types\Types;
 use OTGS\Toolset\CLI\Commands\Toolset\Relationships;
+use OTGS\Toolset\CLI\Layouts\LayoutsImport;
 use OTGS\Toolset\CLI\Layouts\LayoutsExport;
 use WP_CLI;
 use OTGS\Toolset\CLI\Views\Export;
@@ -50,6 +51,7 @@ class Bootstrap {
 		],
 		'layouts' => [
 			'export' => LayoutsExport::class,
+			'import' => LayoutsImport::class,
 		],
 		'post' => [
 			'post' => Extra::class,
