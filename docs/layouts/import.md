@@ -1,6 +1,6 @@
 # wp layouts import
 
-Imports a Layouts XML file.
+Imports a Layouts ZIP file.
 
 ### OPTIONS
 
@@ -14,7 +14,7 @@ Imports a Layouts XML file.
 : Overwrite layout assignments.
 
 &lt;file&gt;
-: The XML file to import.
+: The ZIP file to import.
 
 ### EXAMPLES
 

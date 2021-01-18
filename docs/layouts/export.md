@@ -1,6 +1,6 @@
 # wp layouts export
 
-Exports a Layouts XML file.
+Exports a Layouts ZIP file.
 
 ### Options
 
@@ -8,7 +8,7 @@ Exports a Layouts XML file.
 : Overwrite &lt;file&gt; if it exists
 
 &lt;file&gt;
-: The XML file to export.
+: The ZIP file to export.
 
 ### EXAMPLES
 
