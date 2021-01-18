@@ -33,6 +33,7 @@ them and all their available subcommands here:
 - [wp toolset](docs/toolset.md)
 - [wp types](docs/types.md)
 - [wp views](docs/views.md)
+- [wp layouts](docs/layouts.md)
 
 Of course, when installed, the same information will be available via the `wp help` command.
 
