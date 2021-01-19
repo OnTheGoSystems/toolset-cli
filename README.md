@@ -53,5 +53,11 @@ You are very welcome to:
 - Report problems, including issues with documentation.
 - Send pull requests (we suggest reaching out to us first, if you want to
    contribute with a larger piece of code).
+  
+## Credits
+
+Many thanks to @baizmandesign for his contributions to this project.
+
+---
 
 Made with :heart: for [Toolset](http://toolset.com) and [OnTheGoSystems](http://onthegosystems.com).
