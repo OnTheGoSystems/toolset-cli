@@ -56,7 +56,7 @@ You are very welcome to:
   
 ## Credits
 
-Many thanks to @baizmandesign for his contributions to this project.
+Many thanks to [@baizmandesign](https://github.com/baizmandesign) for his contributions to this project.
 
 ---
 
