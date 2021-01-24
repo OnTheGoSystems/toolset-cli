@@ -1,6 +1,6 @@
 # wp views import
 
-Imports a Types XML file.
+Imports a Views XML or ZIP file.
 
 ### Options
 
@@ -20,7 +20,7 @@ Imports a Types XML file.
 : Overwrite Views settings.
 
 &lt;file&gt;
-: The XML file to import.
+: The XML or ZIP file to import.
 
 ### Examples
 

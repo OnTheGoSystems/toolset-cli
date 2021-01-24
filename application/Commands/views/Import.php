@@ -3,11 +3,23 @@
 namespace OTGS\Toolset\CLI\Views;
 
 use WP_Error;
+use ZipArchive;
 
 class Import extends Views_Commands {
 
+
+	const IMPORT_FORMAT_ZIP = 'zip';
+
+	const IMPORT_FORMAT_XML = 'xml';
+
+	const VALID_EXTENSIONS = [
+		self::IMPORT_FORMAT_ZIP,
+		self::IMPORT_FORMAT_XML,
+	];
+
+
 	/**
-	 * Imports Views from an XML file.
+	 * Import Views from an XML or ZIP file.
 	 *
 	 * Omitted options default to 'false'.
 	 *
@@ -29,14 +41,16 @@ class Import extends Views_Commands {
 	 * : Overwrite Views settings.
 	 *
 	 * <file>
-	 * : The path to the XML file to import.
+	 * : The path to the XML or ZIP file to import.
 	 *
 	 * ## Examples
 	 *
-	 *     wp --user=<admin> views import <file>
+	 *     wp views import <file>
+	 *     wp views import --views-overwrite <file>
 	 *     wp --user=<admin> views import --views-overwrite <file>
 	 *
-	 * @synopsis [--views-overwrite] [--views-delete] [--view-templates-overwrite] [--view-templates-delete] [--view-settings-overwrite] <file>
+	 * @synopsis [--views-overwrite] [--views-delete] [--view-templates-overwrite] [--view-templates-delete]
+	 *     [--view-settings-overwrite] <file>
 	 *
 	 * @param array $args The array of command-line arguments.
 	 * @param array $assoc_args The associative array of command-line options.
@@ -46,21 +60,29 @@ class Import extends Views_Commands {
 		list( $import_filename ) = $args;
 
 		if ( empty ( $import_filename ) ) {
-			\WP_CLI::error( __( 'You must specify a valid file to import.', 'toolset-cli' ) );
+			$this->wp_cli()->error( __( 'You must specify a valid file to import. Aborting.', 'toolset-cli' ) );
 		}
 
 		if ( ! is_file( $import_filename ) ) {
-			\WP_CLI::error( sprintf( __( '"%s" does not exist. Exiting.', 'toolset-cli' ), $import_filename ) );
+			$this->wp_cli()->error( sprintf(
+				__( '"%s" does not exist. Aborting.', 'toolset-cli' ), $import_filename
+			) );
 		}
 
 		// Returns filename extension without a period prefixed to it.
-		$extension = pathinfo( $import_filename, PATHINFO_EXTENSION );
+		$import_filename_extension = strtolower( pathinfo( $import_filename, PATHINFO_EXTENSION ) );
+		$import_filename_basename = pathinfo( $import_filename, PATHINFO_BASENAME );
 
-		// Does the file have a ".xml" extension?
-		if ( ! $extension || strtolower( $extension ) !== 'xml' ) {
-			\WP_CLI::error( sprintf( __( '"%s" is not in XML format.', 'toolset-cli' ), $import_filename ) );
-
-			return;
+		if (
+			! $import_filename_extension
+			|| ! in_array( $import_filename_extension, self::VALID_EXTENSIONS )
+		) {
+			$this->wp_cli()
+				->error( sprintf( __( '"%1$s" is in an invalid format%3$s. The valid formats are: %2$s. Aborting.', 'toolset-cli' ),
+						$import_filename_basename,
+						implode( ', ', self::VALID_EXTENSIONS ),
+						$import_filename_extension !== '' ? ' ("' . $import_filename_extension . '")' : '' )
+				);
 		}
 
 		// Load the import code from the Views plugin.
@@ -68,7 +90,23 @@ class Import extends Views_Commands {
 
 		// Array of arguments to pass to wpv_api_import_from_file().
 		$import_args = [];
-		$import_args['import-file'] = $import_filename;
+
+		$tmp_directory = sys_get_temp_dir();
+		if ( self::IMPORT_FORMAT_ZIP === $import_filename_extension ) {
+			// Expand ZIP archive in the operating system temporary directory.
+			$import_file_zip = new ZipArchive;
+			$result = $import_file_zip->open( $import_filename );
+			if ( $result === true ) {
+				$import_file_zip->extractTo( $tmp_directory );
+				$import_file_zip->close();
+				$import_args['import-file'] = sprintf( '%s/%s', $tmp_directory, 'settings.xml' );
+			} else {
+				$this->wp_cli()->error( sprintf( __( 'There was an error opening the ZIP archive.', 'toolset-cli' ) ) );
+			}
+		} else {
+			// An XML file has been specified on the command line.
+			$import_args['import-file'] = $import_filename;
+		}
 
 		// Parse command-line options and add to $import_args[].
 		if ( count( $assoc_args ) > 0 ) {
@@ -78,10 +116,17 @@ class Import extends Views_Commands {
 			}
 		}
 
+		// Run the import.
 		$import_status = wpv_api_import_from_file( $import_args );
 
+		// Delete temporary files from ZIP archive, if needed.
+		if ( self::IMPORT_FORMAT_ZIP === $import_filename_extension ) {
+			@unlink( sprintf( '%s/%s', $tmp_directory, 'settings.xml' ) );
+			@unlink( sprintf( '%s/%s', $tmp_directory, 'settings.php' ) );
+		}
+
 		if ( $import_status instanceof WP_Error || ! $import_status ) {
-			\WP_CLI::error( sprintf(
+			$this->wp_cli()->error( sprintf(
 				__( 'There was an error importing the views: "%s"', 'toolset-cli' ),
 				$import_status instanceof WP_Error ? $import_status->get_error_message() : 'unknown error'
 			) );
@@ -89,7 +134,9 @@ class Import extends Views_Commands {
 			return;
 		}
 
-		\WP_CLI::success( sprintf( __( 'The views were imported successfully from "%s."', 'toolset-cli' ), $import_filename ) );
+		$this->wp_cli()->success( sprintf(
+			__( 'The views were imported successfully from "%s."', 'toolset-cli' ), $import_filename
+		) );
 	}
 
 }
