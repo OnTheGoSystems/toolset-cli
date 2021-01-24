@@ -7,7 +7,7 @@ use WP_Error;
 class Import extends Views_Commands {
 
 	/**
-	 * Imports Views from an XML file.
+	 * Import Views from an XML file.
 	 *
 	 * Omitted options default to 'false'.
 	 *
@@ -33,8 +33,8 @@ class Import extends Views_Commands {
 	 *
 	 * ## Examples
 	 *
-	 *     wp --user=<admin> views import <file>
-	 *     wp --user=<admin> views import --views-overwrite <file>
+	 *     wp views import <file>
+	 *     wp views import --views-overwrite <file>
 	 *
 	 * @synopsis [--views-overwrite] [--views-delete] [--view-templates-overwrite] [--view-templates-delete] [--view-settings-overwrite] <file>
 	 *
@@ -59,7 +59,6 @@ class Import extends Views_Commands {
 		// Does the file have a ".xml" extension?
 		if ( ! $extension || strtolower( $extension ) !== 'xml' ) {
 			\WP_CLI::error( sprintf( __( '"%s" is not in XML format.', 'toolset-cli' ), $import_filename ) );
-
 			return;
 		}
 
@@ -85,7 +84,6 @@ class Import extends Views_Commands {
 				__( 'There was an error importing the views: "%s"', 'toolset-cli' ),
 				$import_status instanceof WP_Error ? $import_status->get_error_message() : 'unknown error'
 			) );
-
 			return;
 		}
 
