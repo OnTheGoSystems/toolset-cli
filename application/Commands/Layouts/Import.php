@@ -4,14 +4,10 @@ namespace OTGS\Toolset\CLI\Layouts;
 
 use WPDD_Layouts_Theme ;
 
-/*
- * FIXME: replace \WP_CLI with WpCli.
- */
-
 /**
  * Layouts import command.
  */
-class LayoutsImport extends LayoutsCommand {
+class Import extends LayoutsCommand {
 
 	/**
 	 * Imports Layouts from a ZIP file.
@@ -46,12 +42,12 @@ class LayoutsImport extends LayoutsCommand {
 
 		// Is the file empty?
 		if ( empty ( $import_filename ) ) {
-			\WP_CLI::error( __( 'You must specify a valid file to import.', 'toolset-cli' ) );
+			$this->wp_cli()->error( __( 'You must specify a valid file to import.', 'toolset-cli' ) );
 		}
 
 		// Does the import file exist?
 		if ( ! file_exists ( $import_filename ) ) {
-			\WP_CLI::error( sprintf ( __( '"%s" does not exist. Aborting.' ), $import_filename), 'toolset-cli' );
+			$this->wp_cli()->error( sprintf ( __( '"%s" does not exist. Aborting.' ), $import_filename), 'toolset-cli' );
 		}
 
 		// Returns filename extension without a period prefixed to it.
@@ -59,16 +55,13 @@ class LayoutsImport extends LayoutsCommand {
 
 		// Does the file have a ".zip" extension?
 		if ( ! $import_filename_extension || strtolower ( $import_filename_extension ) != 'zip' ) {
-			\WP_CLI::error( sprintf ( __( '"%s" is not in ZIP format.'), $import_filename), 'toolset-cli' );
+			$this->wp_cli()->error( sprintf ( __( '"%s" is not in ZIP format.'), $import_filename), 'toolset-cli' );
 		}
 
 		// Load the import code from the Layouts plugin.
 		require_once WPDDL_ABSPATH . '/inc/theme/wpddl.theme-support.class.php' ;
 
 		$layouts = new WPDD_Layouts_Theme () ;
-		// Trying to remove shut_down_handler because of this error:
-		// "The Layouts files you are trying to upload are too big and you ran out of memory..."
-		// remove_action('toolset-shutdown-hander', array(&$layouts, 'shut_down_handler'));
 
 		// Array of arguments to pass to import_layouts() method.
 		$import_args = array() ;
@@ -89,15 +82,12 @@ class LayoutsImport extends LayoutsCommand {
 		$files['import-file']['name'] = $import_filename_basename ; // basename
 		$files['import-file']['tmp_name'] = $import_filename ; // full path
 
-		// Flag to track the import status.
-		$import_status = false ;
+		$import_succeeded = $layouts->import_layouts( $files, $import_args );
 
-		$import_status = $layouts->import_layouts( $files, $import_args );
-
-		if ( $import_status === true ) {
-			\WP_CLI::success( sprintf ( __( 'The layouts were imported successfully from "%s."'), $import_filename ) , 'toolset-cli' );
+		if ( $import_succeeded ) {
+			$this->wp_cli()->success( sprintf ( __( 'The layouts were imported successfully from "%s."'), $import_filename ) , 'toolset-cli' );
 		} else {
-			\WP_CLI::error( __( 'There was an error importing the layouts.', 'toolset-cli' ) );
+			$this->wp_cli()->error( __( 'There was an error importing the layouts.', 'toolset-cli' ) );
 		}
 
 	}

@@ -27,7 +27,7 @@ WP-CLI commands for Toolset plugins.
    
 ## Documentation
 
-At the moment, three top-level commands are available. Feel free to explore
+At the moment, four top-level commands are available. Feel free to explore
 them and all their available subcommands here:
 
 - [wp toolset](docs/toolset.md)

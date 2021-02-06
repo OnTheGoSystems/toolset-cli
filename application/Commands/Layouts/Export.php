@@ -5,14 +5,10 @@ namespace OTGS\Toolset\CLI\Layouts;
 use WPDD_Layouts_Theme ;
 use ZIP ;
 
-/*
- * FIXME: replace \WP_CLI with WpCli.
- */
-
 /**
  * Layouts export command.
  */
-class LayoutsExport extends LayoutsCommand {
+class Export extends LayoutsCommand {
 
 	/**
 	 * Exports Layouts to a ZIP file.
@@ -32,14 +28,12 @@ class LayoutsExport extends LayoutsCommand {
 	 * @param array $args The array of command-line arguments.
 	 * @param array $assoc_args The associative array of command-line options.
 	 */
-
 	public function __invoke( $args, $assoc_args ) {
 
 		list( $export_filename ) = $args;
 
 		if ( empty ( $export_filename ) ) {
-			\WP_CLI::warning( __( 'You must specify a valid file.', 'toolset-cli' ) );
-			return;
+			$this->wp_cli()->error( __( 'You must specify a valid file.', 'toolset-cli' ) );
 		}
 
 		// Does the specified filename have a ".zip" extension? If not, add it and notify the user.
@@ -50,7 +44,7 @@ class LayoutsExport extends LayoutsCommand {
 			// Returns filename without the path to the parent directory.
 			$export_filename_basename = pathinfo( $export_filename, PATHINFO_BASENAME );
 
-			\WP_CLI::warning ( __( sprintf ('"%1$s" lacks a ".zip" extension. Adding it. The new filename will be "%1$s.zip."', $export_filename_basename ), 'toolset-cli' ) ) ;
+			$this->wp_cli()->warning ( __( sprintf ('"%1$s" lacks a ".zip" extension. Adding it. The new filename will be "%1$s.zip."', $export_filename_basename ), 'toolset-cli' ) ) ;
 
 			// Append '.zip' to export filename.
 			$export_filename .= '.zip' ;
@@ -66,7 +60,7 @@ class LayoutsExport extends LayoutsCommand {
 
 		// Abort if the file already exists and we are not deliberately overwriting it.
 		if ( file_exists ( $export_filename ) && ! $overwrite_export_filename ) {
-			\WP_CLI::error( __( sprintf ('"%1$s" already exists. Aborting. (Use "--overwrite" to overwrite %1$s.)', $export_filename), 'toolset-cli' ) );
+			$this->wp_cli()->error( __( sprintf ('"%1$s" already exists. Aborting. (Use "--overwrite" to overwrite %1$s.)', $export_filename), 'toolset-cli' ) );
 		}
 
 		// Load the export code from the Layouts plugin.
@@ -92,13 +86,13 @@ class LayoutsExport extends LayoutsCommand {
 
 		}
 		else {
-			\WP_CLI::error ( 'The ZIP library is not present. Aborting.', 'toolset-cli' ) ;
+			$this->wp_cli()->error ( __( 'The ZIP library is not present. Aborting.', 'toolset-cli' ) ) ;
 		}
 
 		if ( $export_status === true ) {
-			\WP_CLI::success( sprintf ( __( 'The layouts were exported successfully to "%s."'), $export_filename ), 'toolset-cli' );
+			$this->wp_cli()->success( sprintf ( __( 'The layouts were exported successfully to "%s."'), $export_filename ), 'toolset-cli' );
 		} else {
-			\WP_CLI::error( __( 'There was an error exporting the layouts.', 'toolset-cli' ) );
+			$this->wp_cli()->error( __( 'There was an error exporting the layouts.', 'toolset-cli' ) );
 		}
 
 	}
