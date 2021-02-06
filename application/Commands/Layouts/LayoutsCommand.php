@@ -9,13 +9,4 @@ use OTGS\Toolset\CLI\Commands\ToolsetCommand;
  */
 abstract class LayoutsCommand extends ToolsetCommand {
 
-	/**
-	 * Constructor.
-	 * FIXME: do we need this?
-	 */
-	public function __construct() {
-		parent::__construct();
-
-	}
-
 }

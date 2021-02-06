@@ -46,12 +46,12 @@ class Bootstrap {
 			'archive' => WPA::class,
 			'view' => View::class,
 			'template' => CT::class,
-			'export' => Export::class,
+			'export' => Views\Export::class,
 			'import' => Views\Import::class,
 		],
 		'layouts' => [
-			'export' => LayoutsExport::class,
-			'import' => LayoutsImport::class,
+			'export' => Layouts\Export::class,
+			'import' => Layouts\Import::class,
 		],
 		'post' => [
 			'post' => Extra::class,
@@ -148,7 +148,7 @@ class Bootstrap {
 			case 'toolset':
 				return apply_filters( 'types_is_active', false ) || $this->is_plugin_active( 'views' );
 			case 'layouts':
-				return true ; // FIXME: do we need a real check here?
+				return defined( 'WPDDL_DEVELOPMENT' ) || defined( 'WPDDL_PRODUCTION' );
 			case 'csv':
 				return true;
 			default:
