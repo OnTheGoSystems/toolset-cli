@@ -1,0 +1,50 @@
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: Build for the master branch
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: toolset-cli
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+        working-directory: ./toolset-cli
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: ./toolset-cli
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        uses: php-actions/composer@v5
+        with:
+          php_version: 7.4
+          version: 1
+          dev: no
+          args: --working-dir=toolset-cli
+
+      - name: Cleanup
+        run: rm -rf .git .github .gitignore
+        working-directory: ./toolset-cli
+
+      - name: Prepare output directory
+        run: mkdir output && mv toolset-cli output
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: toolset-cli-master_${{ github.sha }}
+          path: ./output/**
