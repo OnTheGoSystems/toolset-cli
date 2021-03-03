@@ -1,0 +1,71 @@
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    name: Build and deploy for a tag
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: toolset-cli
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+        working-directory: ./toolset-cli
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: ./toolset-cli
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        uses: php-actions/composer@v5
+        with:
+          php_version: 7.4
+          version: 1
+          dev: no
+          args: --working-dir=toolset-cli
+
+      - name: Cleanup
+        run: rm -rf .git .github .gitignore
+        working-directory: ./toolset-cli
+
+      - name: Prepare output directory
+        run: mkdir output && mv toolset-cli output
+
+      - name: Build project
+        run: |
+          cd ./output
+          zip -r toolset-cli.zip toolset-cli/
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Toolset CLI ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object,
+          # which include a `upload_url`. See this blog post for more info:
+          # https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./output/toolset-cli.zip
+          asset_name: toolset-cli.zip
+          asset_content_type: application/zip
