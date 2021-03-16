@@ -3,7 +3,6 @@
 namespace OTGS\Toolset\CLI\Views;
 
 use WP_Error;
-use ZipArchive;
 
 class Import extends Views_Commands {
 
@@ -47,26 +46,28 @@ class Import extends Views_Commands {
 	 *
 	 *     wp views import <file>
 	 *     wp views import --views-overwrite <file>
-	 *     wp --user=<admin> views import --views-overwrite <file>
 	 *
-	 * @synopsis [--views-overwrite] [--views-delete] [--view-templates-overwrite] [--view-templates-delete]
-	 *     [--view-settings-overwrite] <file>
+	 * @synopsis [--views-overwrite] [--views-delete] [--view-templates-overwrite] [--view-templates-delete] [--view-settings-overwrite] <file>
 	 *
 	 * @param array $args The array of command-line arguments.
 	 * @param array $assoc_args The associative array of command-line options.
 	 */
-	public function __invoke( $args, $assoc_args ) {
+	public function __invoke( array $args, array $assoc_args ) {
 		// Get the filename to import.
 		list( $import_filename ) = $args;
 
 		if ( empty ( $import_filename ) ) {
-			$this->wp_cli()->error( __( 'You must specify a valid file to import. Aborting.', 'toolset-cli' ) );
+			$this->wp_cli()->error(
+				__( 'You must specify a valid file to import. Aborting.', 'toolset-cli' ), true
+			);
+			return;
 		}
 
 		if ( ! is_file( $import_filename ) ) {
 			$this->wp_cli()->error( sprintf(
 				__( '"%s" does not exist. Aborting.', 'toolset-cli' ), $import_filename
-			) );
+			), true );
+			return;
 		}
 
 		// Returns filename extension without a period prefixed to it.
@@ -77,36 +78,20 @@ class Import extends Views_Commands {
 			! $import_filename_extension
 			|| ! in_array( $import_filename_extension, self::VALID_EXTENSIONS )
 		) {
-			$this->wp_cli()
-				->error( sprintf( __( '"%1$s" is in an invalid format%3$s. The valid formats are: %2$s. Aborting.', 'toolset-cli' ),
-						$import_filename_basename,
-						implode( ', ', self::VALID_EXTENSIONS ),
-						$import_filename_extension !== '' ? ' ("' . $import_filename_extension . '")' : '' )
-				);
+			$this->wp_cli()->error( sprintf(
+				__( '"%1$s" is in an invalid format%3$s. The valid formats are: %2$s. Aborting.', 'toolset-cli' ),
+				$import_filename_basename,
+				implode( ', ', self::VALID_EXTENSIONS ),
+				$import_filename_extension !== '' ? ' ("' . $import_filename_extension . '")' : ''
+			), true );
+			return;
 		}
 
 		// Load the import code from the Views plugin.
 		require_once WPV_PATH . '/embedded/inc/wpv-import-export-embedded.php';
 
 		// Array of arguments to pass to wpv_api_import_from_file().
-		$import_args = [];
-
-		$tmp_directory = sys_get_temp_dir();
-		if ( self::IMPORT_FORMAT_ZIP === $import_filename_extension ) {
-			// Expand ZIP archive in the operating system temporary directory.
-			$import_file_zip = new ZipArchive;
-			$result = $import_file_zip->open( $import_filename );
-			if ( $result === true ) {
-				$import_file_zip->extractTo( $tmp_directory );
-				$import_file_zip->close();
-				$import_args['import-file'] = sprintf( '%s/%s', $tmp_directory, 'settings.xml' );
-			} else {
-				$this->wp_cli()->error( sprintf( __( 'There was an error opening the ZIP archive.', 'toolset-cli' ) ) );
-			}
-		} else {
-			// An XML file has been specified on the command line.
-			$import_args['import-file'] = $import_filename;
-		}
+		$import_args = [ 'import-file' => $import_filename ];
 
 		// Parse command-line options and add to $import_args[].
 		if ( count( $assoc_args ) > 0 ) {
@@ -119,17 +104,11 @@ class Import extends Views_Commands {
 		// Run the import.
 		$import_status = wpv_api_import_from_file( $import_args );
 
-		// Delete temporary files from ZIP archive, if needed.
-		if ( self::IMPORT_FORMAT_ZIP === $import_filename_extension ) {
-			@unlink( sprintf( '%s/%s', $tmp_directory, 'settings.xml' ) );
-			@unlink( sprintf( '%s/%s', $tmp_directory, 'settings.php' ) );
-		}
-
 		if ( $import_status instanceof WP_Error || ! $import_status ) {
 			$this->wp_cli()->error( sprintf(
 				__( 'There was an error importing the views: "%s"', 'toolset-cli' ),
 				$import_status instanceof WP_Error ? $import_status->get_error_message() : 'unknown error'
-			) );
+			), true );
 
 			return;
 		}
