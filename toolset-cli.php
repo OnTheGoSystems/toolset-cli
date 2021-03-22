@@ -4,7 +4,7 @@ Plugin Name: Toolset CLI
 Description: WP-CLI commands for Toolset plugins
 Author: OnTheGoSystems
 Author URI: http://www.onthegosystems.com
-Version: 1.0.2
+Version: 1.0.3
 License: GPLv2 or later
 */
 
