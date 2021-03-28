@@ -81,6 +81,12 @@ class Bootstrap {
 	}
 
 
+	public function initialize_updater( $plugin_filename ) {
+		$updater = new Updater( $plugin_filename );
+		$updater->initialize();
+	}
+
+
 	/**
 	 * Registers all available commands.
 	 */
