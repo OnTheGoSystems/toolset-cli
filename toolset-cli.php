@@ -5,7 +5,7 @@ Plugin URI: https://github.com/OnTheGoSystems/toolset-cli
 Description: WP-CLI commands for Toolset plugins.
 Author: OnTheGoSystems
 Author URI: https://onthegosystems.com
-Version: 1.0.3
+Version: 1.1
 License: GPLv2 or later
 */
 
