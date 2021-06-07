@@ -7,6 +7,7 @@ WP-CLI commands for Toolset plugins.
 - PHP 7.0 or higher
 - [Composer](https://getcomposer.org/) 1.x
 - Latest versions of [Toolset plugins](https://toolset.com)
+- [WP-CLI](https://wp-cli.org/)
 
 ## Installation
 
