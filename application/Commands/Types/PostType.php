@@ -121,12 +121,15 @@ class PostType extends TypesCommand {
 	 * [--hierarchical=<bool>]
 	 * : Whether hierarchical option is enabled. Default: false.
 	 *
+	 * [--publicly_queryable=<bool>]
+	 * : Whether publicly_queryable option is enabled. Default: true.
+	 *
 	 * ## EXAMPLES
 	 *
 	 *    wp types posttype create --slug='book' --singular='Book' --plural='Books' --editor=block --show_in_rest=true --hierarchical=true
 	 *
 	 * @subcommand create
-	 * @synopsis [--slug=<string>] [--singular=<string>] [--plural=<string>] [--editor=<string>] [--show_in_rest=<bool>] [--hierarchical=<bool>]
+	 * @synopsis [--slug=<string>] [--singular=<string>] [--plural=<string>] [--editor=<string>] [--show_in_rest=<bool>] [--hierarchical=<bool>] [--publicly_queryable=<bool>]
 	 *
 	 * @since 1.0
 	 */
@@ -138,6 +141,7 @@ class PostType extends TypesCommand {
 			'editor' => 'classic',
 			'show_in_rest' => 'false',
 			'hierarchical' => 'false',
+			'publicly_queryable' => 'true'
 		);
 		$assoc_args = wp_parse_args( $assoc_args, $defaults );
 
@@ -145,6 +149,7 @@ class PostType extends TypesCommand {
 			'editor' => $assoc_args['editor'],
 			'show_in_rest' => $assoc_args['show_in_rest'],
 			'hierarchical' => $assoc_args['hierarchical'],
+			'publicly_queryable' => $assoc_args['publicly_queryable'],
 		);
 
 		$post_type = $this->create_item( $assoc_args['slug'], $assoc_args['plural'], $assoc_args['singular'], $post_type_options );
@@ -227,6 +232,15 @@ class PostType extends TypesCommand {
 			}
 
 			$post_type_repository->save( $post_type );
+
+			if ( isset( $post_type_options['publicly_queryable'] ) ) {
+				$custom_types = get_option( \Toolset_Post_Type_Repository::POST_TYPES_OPTION_NAME, array() );
+				$custom_types[ $post_type->get_slug() ]['publicly_queryable'] = (
+					'true' === $post_type_options['publicly_queryable']
+				);
+				update_option( \Toolset_Post_Type_Repository::POST_TYPES_OPTION_NAME, $custom_types, true );
+				$post_type_repository->refresh_all_post_types();
+			}
 
 			// @todo This is a workaround to flush rewrite rules, until toolsetcommon-329 is fixed
 			register_post_type( $slug );

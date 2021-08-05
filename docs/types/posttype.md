@@ -5,7 +5,7 @@ Post Type commands.
 ## Subcommands
 
 - [wp types posttype activate](posttype/activate.md) <slug>
-- [wp types posttype create](posttype/create.md) [--slug=<string>] [--singular=<string>] [--plural=<string>] [--editor=<string>] [--show_in_rest=<bool>] [--hierarchical=<bool>]
+- [wp types posttype create](posttype/create.md) [--slug=<string>] [--singular=<string>] [--plural=<string>] [--editor=<string>] [--show_in_rest=<bool>] [--hierarchical=<bool>] [--publicly_queryable=<bool>]
 - [wp types posttype deactivate](posttype/deactivate.md) <slug>
 - [wp types posttype delete](posttype/delete.md) <slug>
 - [wp types posttype empty](posttype/empty.md) 
