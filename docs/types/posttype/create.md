@@ -22,6 +22,9 @@ Creates a new post type.
 [\--hierarchical=&lt;bool&gt;]
 : Whether hierarchical option is enabled. Default: false.
 
+[\--publicly_queryable=&lt;bool&gt;]
+: Whether publicly_queryable option is enabled. Default: true.
+
 ### EXAMPLES
 
    wp types posttype create --slug='book' --singular='Book' --plural='Books' --editor=block --show_in_rest=true --hierarchical=true
