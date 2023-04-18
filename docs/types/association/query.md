@@ -1,4 +1,4 @@
-# wp types relationship get-related-posts
+# wp types association query
 
 Displays posts related to a given post.
 
@@ -21,6 +21,6 @@ Displays posts related to a given post.
 
 ## EXAMPLES
 
-   wp types relationship get-related-posts --post=123 --relationship=slug
-   wp types relationship get-related-posts --post=123 --relationship=slug --role-to-return=child --query-by-role=parent
-   wp types relationship get-related-posts --post=123 --relationship=slug --role-to-return=child --query-by-role=parent --format=json
+wp types association query --post=123 --relationship=slug
+wp types association query --post=123 --relationship=slug --role-to-return=child --query-by-role=parent
+wp types association query --post=123 --relationship=slug --role-to-return=child --query-by-role=parent --format=json
