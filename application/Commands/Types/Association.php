@@ -156,4 +156,66 @@ class Association extends TypesCommand {
 		}
 		$progress->finish();
 	}
+	
+	/**
+	 * Displays posts related to a given post.
+	 *
+	 * ## OPTIONS
+	 *
+	 * --post=<number>
+	 * : The ID of the post.
+	 *
+	 *	--relationship=<string>
+	 * : The relationship slug.
+	 *
+	 * [--role-to-return=<string>]
+	 * : The role to return.
+	 *
+	 * [--query-by-role=<string>]
+	 * : The role to query by.
+	 *
+	 * [--format=<format>]
+	 * : The format of the output. Can take values: table, csv, json, count, yaml. Default: table.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *    wp types association query --post=123 --relationship=slug
+	 *    wp types association query --post=123 --relationship=slug --role-to-return=child --query-by-role=parent
+	 *    wp types association query --post=123 --relationship=slug --role-to-return=child --query-by-role=parent --format=json
+	 *
+	 * @subcommand query
+	 * @synopsis --post=<number> --relationship=<string> [--role-to-return=<string>] [--query-by-role=<string>] [--format=<format>]
+	 * @link https://toolset.com/documentation/customizing-sites-using-php/post-relationships-api/#toolset_get_related_posts
+	 */
+	public function query( $args, $assoc_args ) {
+		$defaults = array (
+			'role-to-return' => 'child',
+			'query-by-role' => 'parent',
+			'format' => 'table',
+		);
+		$assoc_args = wp_parse_args( $assoc_args, $defaults );
+		$relationship_slug = $assoc_args['relationship'];
+		$post = $assoc_args['post'] ;
+
+		$query_args = [
+			'orderby' => 'title',
+			'order' => 'ASC',
+			'return' => 'post_id',
+			'limit' => -1,
+		] ;
+		$query_args['role_to_return'] = $assoc_args['role-to-return'];
+		$query_args['query_by_role'] = $assoc_args['query-by-role'];
+
+		$related_posts = toolset_get_related_posts ( $post, $relationship_slug, $query_args ) ;
+
+		$columns = [ 'ID', 'post_title', ] ;
+		$items = array_map ( function ( $related_post ) {
+			return [
+				'ID' => $related_post,
+				'post_title' => get_the_title ($related_post)
+			] ;
+		}, $related_posts) ;
+
+		\WP_CLI\Utils\format_items( $assoc_args['format'], $items, $columns );
+	}
 }
