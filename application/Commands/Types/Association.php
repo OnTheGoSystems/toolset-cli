@@ -165,7 +165,7 @@ class Association extends TypesCommand {
 	 * --post=<number>
 	 * : The ID of the post.
 	 *
-	 *	--relationship=<string>
+	 * --relationship=<string>
 	 * : The relationship slug.
 	 *
 	 * [--role-to-return=<string>]
